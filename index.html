@@ -1,0 +1,47 @@
+<html>
+  <head>
+  <meta charset="UTF-8">
+  <title>Streams WAV Decoder</title>
+  <script src="js/MohayonaoWavDecoder.js"></script>
+  <script src="js/app.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+    body {
+      font-size: 16px;
+      padding: 1em;
+      box-sizing: border-box;
+      font-family: sans-serif;
+    }
+
+    dl {
+      font-family: monospace;
+      font-size: 75%;
+      overflow: auto;
+    }
+    dt, dd {
+      float: left;
+      margin: 0;
+    }
+    dt {
+      clear: left;
+      width: 170px;
+    }
+    dd {
+    }
+  </style>
+</head>
+<body>
+  <p id="status">&nbsp;</p>
+  <dl>
+    <dt>downloaded</dt>
+    <dd id="progress"></dd>
+
+    <dt>AudioBuffer Created</dt>
+    <dd id="abCreated"></dd>
+  </dl>
+</body>
+</html>
