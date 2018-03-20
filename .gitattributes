@@ -1,0 +1,4 @@
+nginx/* linguist-language=nginx
+nginx/* linguist-language=Nginx
+.conf/nginx/* linguist-language=nginx
+.conf/nginx/* linguist-language=Nginx
