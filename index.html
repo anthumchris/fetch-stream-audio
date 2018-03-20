@@ -1,6 +1,7 @@
 <html>
   <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Streams WAV Decoder</title>
   <script src="js/MohayonaoWavDecoder.js"></script>
   <script src="js/app.js"></script>
@@ -16,6 +17,9 @@
       box-sizing: border-box;
       font-family: sans-serif;
     }
+    p {
+      height: 1em;
+    }
 
     dl {
       font-family: monospace;
@@ -30,18 +34,30 @@
       clear: left;
       width: 170px;
     }
+    dt:after {
+      content: ':';
+    }
     dd {
     }
   </style>
 </head>
 <body>
-  <p id="status">&nbsp;</p>
+  <p id="status"></p>
   <dl>
-    <dt>downloaded</dt>
+    <dt>Downloaded</dt>
     <dd id="progress"></dd>
+
+    <dt>AudioBuffer Size</dt>
+    <dd id="abSize"></dd>
 
     <dt>AudioBuffer Created</dt>
     <dd id="abCreated"></dd>
+
+    <dt>AudioBuffer Played</dt>
+    <dd id="abEnded"></dd>
+
+    <dt>AudioBuffer Unplayed</dt>
+    <dd id="abRemaining"></dd>
   </dl>
 </body>
 </html>
