@@ -93,20 +93,24 @@ const AudioStreamPlayer = (function() {
       updateUI();
     })
 
-    const audioBuffer = new AudioBuffer({
-      length,
-      numberOfChannels,
-      sampleRate
-    });
+    const audioBuffer = audioCtx.createBuffer(numberOfChannels,length, sampleRate);
     abCreated++;
     updateUI();
 
-    for (let i=0; i<numberOfChannels; i++) {
-      audioBuffer.copyToChannel(channelData[i], i)
+    // Use performant copyToChannel() if browser supports it
+    for (let c=0; c<numberOfChannels; c++) {
+      if (audioBuffer.copyToChannel) {
+        audioBuffer.copyToChannel(channelData[c], c)
+      } else {
+        let toChannel = audioBuffer.getChannelData(c);
+        for (let i=0; i<channelData[c].byteLength; i++) {
+          toChannel[i] = channelData[c][i];
+        }
+      }
     }
+
     audioSrc.buffer = audioBuffer
     audioSrc.connect(audioCtx.destination);
-
     audioSrc.start(playStartedAt+totalTimeScheduled);
     totalTimeScheduled+= audioBuffer.duration;
   }
