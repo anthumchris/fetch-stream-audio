@@ -90,12 +90,6 @@ const AudioStreamPlayer = (function() {
   }
 
   function schedulePlayback({channelData, length, numberOfChannels, sampleRate}) {
-    // initialize first play position.  initial clipping/choppiness sometimes occurs and intentional start latency needed
-    if (!playStartedAt) {
-      playStartedAt = audioCtx.currentTime + (audioCtx.baseLatency || 0.1);
-      UI.playing();
-    }
-
     const audioSrc = audioCtx.createBufferSource();
 
     audioSrc.addEventListener('ended', _ => {
@@ -117,6 +111,14 @@ const AudioStreamPlayer = (function() {
           toChannel[i] = channelData[c][i];
         }
       }
+    }
+
+    // initialize first play position.  initial clipping/choppiness sometimes occurs and intentional start latency needed
+    // read more: https://github.com/WebAudio/web-audio-api/issues/296#issuecomment-257100626
+    if (!playStartedAt) {
+      const startDelay = audioBuffer.duration + (audioCtx.baseLatency || 128 / audioCtx.sampleRate);
+      playStartedAt = audioCtx.currentTime + startDelay;
+      UI.playing();
     }
 
     audioSrc.buffer = audioBuffer
