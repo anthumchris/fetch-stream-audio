@@ -97,7 +97,6 @@ MohayonaoWavDecoder.prototype._decodeMetaInfo = function (reader, chunkSize) {
   if (!reader[meta.readerMethodName]) {
     return new TypeError("Not supported bit depth: " + meta.bitDepth);
   }
-  console.log(meta);
   return meta;
 }
 

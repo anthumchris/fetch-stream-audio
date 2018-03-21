@@ -26,11 +26,14 @@ fetch('https://fetch-stream-audio.anthum.com/200kbps/rock-48000hz-trim.wav')
   function read() {
     reader.read().then(({value, done}) => {
       if (done) {
-        AudioPlayer.flushBuffer();
+        AudioStreamPlayer.enqueueDone();
       } else {
         bytesRead+= value.byteLength;
         UI.downloadProgress({bytesRead, bytesTotal})
-        AudioPlayer.enqueue(value);
+        
+        // TODO errors in underlying Worker must be dealt with here.
+        AudioStreamPlayer.enqueue(value.buffer);
+
         read();
       }
     }).catch(e => UI.error(e))
@@ -39,63 +42,45 @@ fetch('https://fetch-stream-audio.anthum.com/200kbps/rock-48000hz-trim.wav')
 .catch(e => UI.error(e))
 
 
-const AudioPlayer = (function() {
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)(),
-        decoder = new MohayonaoWavDecoder();
 
-  /* bytes received must be buffered to ensure decoder receives complete chunks.
-   * Otherwise, decoder returns white noise (typically for odd (not even) chunk size).
-   * Skipping occurs if too small or if network isn't fast enough.
-   * Users must wait too long to hear audio if too large.
-   */
-  const abSize = 16*1024,
-        readBuffer = new Uint8Array(abSize);
+const AudioStreamPlayer = (function() {
+  const readBufferSize = 16*1024,
+        worker = new Worker('/js/worker-decoder.js'),
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
   let totalTimeScheduled = 0,   // time scheduled of all AudioBuffers
       playStartedAt = 0,        // audioContext.currentTime of first scheduled play buffer
       abCreated = 0,            // AudioBuffers created
-      abEnded = 0,              // AudioBuffers played/ended
-      bufferPos = 0;            // readBuffer position (to insert)
+      abEnded = 0;              // AudioBuffers played/ended
 
-  function flushBuffer() {
-    const chunk = readBuffer.slice(0,bufferPos),
-          decodeStart = performance.now();
+  // worker requires initialization
+  worker.postMessage({init: {readBufferSize}});
 
-    decoder.decodeChunk(chunk)
-    .then(data => {
-      console.debug('decoded',chunk.byteLength,'bytes in', (performance.now()-decodeStart).toFixed(2)+'ms');
-      schedulePlayback(data)
-    });
+  // TODO errors should be signaled to caller
+  worker.onerror = event => {};
 
-    bufferPos = 0;
-  }
+  worker.onmessage = event => {
+    if (event.data.channelData) {
+      const decoded = event.data;
 
-  function enqueue(streamChunk) {
-    updateUI()
+      // convert Transferrable ArrayBuffer to Float32Array
+      decoded.channelData = decoded.channelData.map(buffer => new Float32Array(buffer));
 
-    for (let i=0; i<streamChunk.byteLength; i++) {
-      readBuffer[bufferPos++] = streamChunk[i];
-
-      // flush readBuffer to decoder if full
-      if (bufferPos === readBuffer.byteLength) {
-        flushBuffer();
-      }
+      schedulePlayback(decoded);
     }
   }
 
-  function updateUI() {
-    UI.bufferUpdate({abSize, abCreated, abEnded});
+  // arrayBuffer will be inaccessible to caller after performant Transferable postMessage()
+  function enqueue(arrayBuffer) {
+    worker.postMessage({decode: arrayBuffer}, [arrayBuffer]);
   }
 
-  function togglePause() {
-    if(audioCtx.state === 'running') {
-      return audioCtx.suspend().then(_ => true)
-    } else if(audioCtx.state === 'suspended') {
-      return audioCtx.resume().then(_ => false)
-    }
+  function enqueueDone() {
+    worker.postMessage({flush: true});
   }
 
   function schedulePlayback({channelData, length, numberOfChannels, sampleRate}) {
+    // initialize first play position.  initial clipping/weirdness may occur and explicit latency may be needed
     if (!playStartedAt) {
       playStartedAt = audioCtx.currentTime + (audioCtx.baseLatency || 0.1);
       UI.playing();
@@ -103,7 +88,7 @@ const AudioPlayer = (function() {
 
     const audioSrc = audioCtx.createBufferSource();
 
-    audioSrc.addEventListener('ended', function() {
+    audioSrc.addEventListener('ended', _ => {
       abEnded++;
       updateUI();
     })
@@ -126,9 +111,21 @@ const AudioPlayer = (function() {
     totalTimeScheduled+= audioBuffer.duration;
   }
 
+  function updateUI() {
+    UI.bufferUpdate({readBufferSize, abCreated, abEnded});
+  }
+
+  function togglePause() {
+    if(audioCtx.state === 'running') {
+      return audioCtx.suspend().then(_ => true)
+    } else if(audioCtx.state === 'suspended') {
+      return audioCtx.resume().then(_ => false)
+    }
+  }
+
   return {
     enqueue,
-    flushBuffer,
+    enqueueDone,
     togglePause
   }
 })()
@@ -136,12 +133,14 @@ const AudioPlayer = (function() {
 
 
 const UI = (function() {
+  const id = document.getElementById.bind(document);
+
   let elStatus, elProgress, elAbSize, elAbCreated, elAbEnded, elAbRemaining;
 
   // Pause/Resume with space bar
   document.onkeydown = event => {
     if (event.code === 'Space') {
-      AudioPlayer.togglePause()
+      AudioStreamPlayer.togglePause()
       .then(isPaused => {
         if (isPaused) paused()
         else playing()
@@ -150,14 +149,13 @@ const UI = (function() {
   }
 
   document.addEventListener('DOMContentLoaded', _ => {
-    elStatus = document.getElementById('status');
-    elProgress = document.getElementById('progress');
-    elAbSize = document.getElementById('abSize');
-    elAbCreated = document.getElementById('abCreated');
-    elAbEnded = document.getElementById('abEnded');
-    elAbRemaining = document.getElementById('abRemaining');
+    elStatus =      id('status');
+    elProgress =    id('progress');
+    elAbSize =      id('abSize');
+    elAbCreated =   id('abCreated');
+    elAbEnded =     id('abEnded');
+    elAbRemaining = id('abRemaining');
   })
-
 
   function downloadProgress({bytesRead, bytesTotal}) {
     if (bytesTotal) {
@@ -167,8 +165,8 @@ const UI = (function() {
     }
   }
 
-  function bufferUpdate({abSize, abCreated, abEnded}) {
-    elAbSize.innerHTML = abSize.toLocaleString()+ ' ('+abSize/1024+'K)';
+  function bufferUpdate({readBufferSize, abCreated, abEnded}) {
+    elAbSize.innerHTML = readBufferSize.toLocaleString()+ ' ('+readBufferSize/1024+'K)';
     elAbCreated.innerHTML = abCreated;
     elAbEnded.innerHTML = abEnded;
     elAbRemaining.innerHTML = abCreated-abEnded;
