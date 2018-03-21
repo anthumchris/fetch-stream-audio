@@ -63,7 +63,9 @@ function playResponseAsStream(response, readBufferSize) {
 // Main controller for playing chunks enqueued for decoding.  
 const AudioStreamPlayer = (function() {
   const worker = new Worker('/js/worker-decoder.js'),
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)(),
+        audioSrcNodes = []; // Used to fix Safari Bug https://github.com/AnthumChris/fetch-stream-audio/issues/1
+
 
   let totalTimeScheduled = 0,   // time scheduled of all AudioBuffers
       playStartedAt = 0,        // audioContext.currentTime of first scheduled play buffer
@@ -84,6 +86,12 @@ const AudioStreamPlayer = (function() {
     }
   }
 
+  function onAudioNodeEnded() {
+    audioSrcNodes.shift();
+    abEnded++;
+    updateUI();
+  }
+
   // arrayBuffer will be inaccessible to caller after performant Transferable postMessage()
   function enqueueForDecoding(arrayBuffer) {
     worker.postMessage({decode: arrayBuffer}, [arrayBuffer]);
@@ -91,15 +99,16 @@ const AudioStreamPlayer = (function() {
 
   function schedulePlayback({channelData, length, numberOfChannels, sampleRate}) {
     const audioSrc = audioCtx.createBufferSource();
-
-    audioSrc.addEventListener('ended', _ => {
-      abEnded++;
-      updateUI();
-    })
-
     const audioBuffer = audioCtx.createBuffer(numberOfChannels,length, sampleRate);
+
+    audioSrc.onended = onAudioNodeEnded;
     abCreated++;
     updateUI();
+
+    // ensures onended callback is fired in Safari
+    if (window.webkitAudioContext) {
+      audioSrcNodes.push(audioSrc);
+    }
 
     // Use performant copyToChannel() if browser supports it
     for (let c=0; c<numberOfChannels; c++) {
