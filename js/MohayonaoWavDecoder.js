@@ -11,14 +11,14 @@ function MohayonaoWavDecoder(opts) {
   this.opts = opts || {};
 }
 
-MohayonaoWavDecoder.prototype.decodeChunk = function(typedArray) {
+MohayonaoWavDecoder.prototype.decodeChunk = function(arrayBuffer) {
   return new Promise(resolve => {
-    resolve(this.decodeChunkSync(typedArray));
+    resolve(this.decodeChunkSync(arrayBuffer));
   });
 }
 
-MohayonaoWavDecoder.prototype.decodeChunkSync = function(typedArray) {
-  let reader = new MohayonaoReader(new DataView(typedArray.buffer));
+MohayonaoWavDecoder.prototype.decodeChunkSync = function(arrayBuffer) {
+  let reader = new MohayonaoReader(new DataView(arrayBuffer));
 
   // first call should parse RIFF meta data and store for subsequent reads
   if (!this.readerMeta) {

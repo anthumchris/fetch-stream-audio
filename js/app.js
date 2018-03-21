@@ -1,60 +1,74 @@
 'use strict'
 
-// fetch('https://fetch-stream-audio.anthum.com/nolimit/rock-48000hz-trim.wav')
-// fetch('https://fetch-stream-audio.anthum.com/300kbps/rock-48000hz-trim.wav')
+// fetch('audio/rock-48000hz-trim.wav') // Localhost testing requires CORS config to obtain Content-Length 
 fetch('https://fetch-stream-audio.anthum.com/200kbps/rock-48000hz-trim.wav')
-// fetch('https://fetch-stream-audio.anthum.com/192kbps/rock-48000hz-trim.wav')
-// fetch('https://fetch-stream-audio.anthum.com/180kbps/rock-48000hz-trim.wav')
-// fetch('https://fetch-stream-audio.anthum.com/300kbps/rock-48000hz-trim-mono.wav')
-// fetch('https://fetch-stream-audio.anthum.com/300kbps/house-41000hz-trim.wav')
-// fetch('https://fetch-stream-audio.anthum.com/300kbps/house-41000hz-trim-mono.wav')
+.then(response => playResponseAsStream(response, 16*1024))
+.then(_ => console.log('all stream bytes queued for decoding'))
+.catch(e => UI.error(e))
 
-/* localhost */
-// fetch('audio/rock-48000hz-trim.wav')
-// fetch('audio/house-41000hz-trim.wav')
-.then(response => {
+
+/* Chunks read must be buffered before sending to decoder.
+ * Otherwise, decoder returns white noise for odd (not even) chunk size).
+ * Skipping/hissing occurs if buffer is too small or if network isn't fast enough.
+ * Users must wait too long to hear audio if buffer is too large.
+ *
+ * Returns Promise that resolves when entire stream is read and bytes queued for decoding
+ */
+function playResponseAsStream(response, readBufferSize) {
   if (!response.ok) throw Error(response.status+' '+response.statusText)
   if (!response.body) throw Error('ReadableStream not yet supported in this browser - <a href="https://developer.mozilla.org/en-US/docs/Web/API/Body/body#Browser_Compatibility">browser compatibility</a>')
 
   const reader = response.body.getReader(),
         contentLength = response.headers.get('content-length'), // requires CORS access-control-expose-headers: content-length
-        bytesTotal = contentLength? parseInt(contentLength, 10) : 0
+        bytesTotal = contentLength? parseInt(contentLength, 10) : 0,
+        readBuffer = new ArrayBuffer(readBufferSize),
+        readBufferView = new Uint8Array(readBuffer);
 
-  let bytesRead = 0;
+  let bytesRead = 0, byte, readBufferPos = 0;
 
-  read()
+  UI.readBufferSize(readBufferSize);
+
+  // TODO errors in underlying Worker must be dealt with here.
+  function flushReadBuffer() {
+    AudioStreamPlayer.enqueueForDecoding(readBuffer.slice(0, readBufferPos));
+    readBufferPos = 0;
+  }
+
+  // Fill readBuffer and flush when readBufferSize is reached
   function read() {
-    reader.read().then(({value, done}) => {
+    return reader.read().then(({value, done}) => {
       if (done) {
-        AudioStreamPlayer.enqueueDone();
+        flushReadBuffer();
+        return;
       } else {
         bytesRead+= value.byteLength;
         UI.downloadProgress({bytesRead, bytesTotal})
         
-        // TODO errors in underlying Worker must be dealt with here.
-        AudioStreamPlayer.enqueue(value.buffer);
+        for (byte of value) {
+          readBufferView[readBufferPos++] = byte;
+          if (readBufferPos === readBufferSize) {
+            flushReadBuffer();
+          }
+        }
 
-        read();
+        return read();
       }
-    }).catch(e => UI.error(e))
+    })
   }
-})
-.catch(e => UI.error(e))
+
+  return read()
+}
 
 
-
+// Main controller for playing chunks enqueued for decoding.  
 const AudioStreamPlayer = (function() {
-  const readBufferSize = 16*1024,
-        worker = new Worker('/js/worker-decoder.js'),
+  const worker = new Worker('/js/worker-decoder.js'),
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
   let totalTimeScheduled = 0,   // time scheduled of all AudioBuffers
       playStartedAt = 0,        // audioContext.currentTime of first scheduled play buffer
       abCreated = 0,            // AudioBuffers created
       abEnded = 0;              // AudioBuffers played/ended
-
-  // worker requires initialization
-  worker.postMessage({init: {readBufferSize}});
 
   // TODO errors should be signaled to caller
   worker.onerror = event => {};
@@ -64,23 +78,19 @@ const AudioStreamPlayer = (function() {
       const decoded = event.data;
 
       // convert Transferrable ArrayBuffer to Float32Array
-      decoded.channelData = decoded.channelData.map(buffer => new Float32Array(buffer));
+      decoded.channelData = decoded.channelData.map(arrayBuffer => new Float32Array(arrayBuffer));
 
       schedulePlayback(decoded);
     }
   }
 
   // arrayBuffer will be inaccessible to caller after performant Transferable postMessage()
-  function enqueue(arrayBuffer) {
+  function enqueueForDecoding(arrayBuffer) {
     worker.postMessage({decode: arrayBuffer}, [arrayBuffer]);
   }
 
-  function enqueueDone() {
-    worker.postMessage({flush: true});
-  }
-
   function schedulePlayback({channelData, length, numberOfChannels, sampleRate}) {
-    // initialize first play position.  initial clipping/weirdness may occur and explicit latency may be needed
+    // initialize first play position.  initial clipping/choppiness sometimes occurs and intentional start latency needed
     if (!playStartedAt) {
       playStartedAt = audioCtx.currentTime + (audioCtx.baseLatency || 0.1);
       UI.playing();
@@ -116,7 +126,7 @@ const AudioStreamPlayer = (function() {
   }
 
   function updateUI() {
-    UI.bufferUpdate({readBufferSize, abCreated, abEnded});
+    UI.audioBufferUpdate({abCreated, abEnded});
   }
 
   function togglePause() {
@@ -128,18 +138,17 @@ const AudioStreamPlayer = (function() {
   }
 
   return {
-    enqueue,
-    enqueueDone,
+    enqueueForDecoding,
     togglePause
   }
 })()
 
 
-
+// Controls user interface and display functionality
 const UI = (function() {
   const id = document.getElementById.bind(document);
 
-  let elStatus, elProgress, elAbSize, elAbCreated, elAbEnded, elAbRemaining;
+  let elStatus, elProgress, elRbSize, elAbCreated, elAbEnded, elAbRemaining;
 
   // Pause/Resume with space bar
   document.onkeydown = event => {
@@ -155,7 +164,7 @@ const UI = (function() {
   document.addEventListener('DOMContentLoaded', _ => {
     elStatus =      id('status');
     elProgress =    id('progress');
-    elAbSize =      id('abSize');
+    elRbSize =      id('rbSize');
     elAbCreated =   id('abCreated');
     elAbEnded =     id('abEnded');
     elAbRemaining = id('abRemaining');
@@ -165,12 +174,15 @@ const UI = (function() {
     if (bytesTotal) {
       let read = bytesRead.toLocaleString();
       let total = bytesTotal.toLocaleString();
-      elProgress.innerHTML = `${read} / ${total} bytes (${Math.round(bytesRead/bytesTotal*100)}%)`;
+      elProgress.innerHTML = `${Math.round(bytesRead/bytesTotal*100)}% - ${read}/${total}`;
     }
   }
 
-  function bufferUpdate({readBufferSize, abCreated, abEnded}) {
-    elAbSize.innerHTML = readBufferSize.toLocaleString()+ ' ('+readBufferSize/1024+'K)';
+  function readBufferSize(readBufferSize) {
+    elRbSize.innerHTML = readBufferSize.toLocaleString()+ ' ('+readBufferSize/1024+'K)';
+  }
+
+  function audioBufferUpdate({abCreated, abEnded}) {
     elAbCreated.innerHTML = abCreated;
     elAbEnded.innerHTML = abEnded;
     elAbRemaining.innerHTML = abCreated-abEnded;
@@ -194,7 +206,8 @@ const UI = (function() {
 
   return {
     downloadProgress,
-    bufferUpdate,
+    audioBufferUpdate,
+    readBufferSize,
     status,
     error,
     playing,
