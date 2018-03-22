@@ -86,6 +86,13 @@ const AudioStreamPlayer = (function() {
     }
   }
 
+  // Pause/Resume with space bar
+  document.onkeydown = event => {
+    if (event.code === 'Space') {
+      togglePause();
+    }
+  }
+
   function onAudioNodeEnded() {
     audioSrcNodes.shift();
     abEnded++;
@@ -142,9 +149,9 @@ const AudioStreamPlayer = (function() {
 
   function togglePause() {
     if(audioCtx.state === 'running') {
-      return audioCtx.suspend().then(_ => true)
+      audioCtx.suspend().then(_ => UI.paused())
     } else if(audioCtx.state === 'suspended') {
-      return audioCtx.resume().then(_ => false)
+      audioCtx.resume().then(_ => UI.playing())
     }
   }
 
@@ -161,17 +168,6 @@ const UI = (function() {
 
   let elStatus, elProgress, elRbSize, elAbCreated, elAbEnded, elAbRemaining;
 
-  // Pause/Resume with space bar
-  document.onkeydown = event => {
-    if (event.code === 'Space') {
-      AudioStreamPlayer.togglePause()
-      .then(isPaused => {
-        if (isPaused) paused()
-        else playing()
-      })
-    }
-  }
-
   document.addEventListener('DOMContentLoaded', _ => {
     elStatus =      id('status');
     elProgress =    id('progress');
@@ -183,9 +179,9 @@ const UI = (function() {
 
   function downloadProgress({bytesRead, bytesTotal}) {
     if (bytesTotal) {
-      let read = bytesRead.toLocaleString();
-      let total = bytesTotal.toLocaleString();
-      elProgress.innerHTML = `${Math.round(bytesRead/bytesTotal*100)}% - ${read}/${total}`;
+      let read = bytesRead; //.toLocaleString();
+      let total = bytesTotal; //.toLocaleString();
+      elProgress.innerHTML = `${Math.round(bytesRead/bytesTotal*100)}% ${read}/${total}`;
     }
   }
 
@@ -208,11 +204,11 @@ const UI = (function() {
   }
 
   function playing() {
-    status('⏸️️Playing')
+    status('<button onclick="AudioStreamPlayer.togglePause()"><span class="pause"></span>Playing</button>')
   }
 
   function paused() {
-    status('️▶️Paused')
+    status('<button onclick="AudioStreamPlayer.togglePause()"><span class="play"></span>Paused</button>')
   }
 
   return {

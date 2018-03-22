@@ -12,17 +12,21 @@
     }
     body {
       font-size: 16px;
-      padding: 1em;
+      padding: 3em .5em .5em .5em;
       box-sizing: border-box;
       font-family: sans-serif;
+      text-align: center;
+      color: #ccc;
+      background: #07053c;
     }
-    p {
-      height: 1em;
+    main {
+      display: inline-block;
+      margin: 0 auto;
+      padding: 0;
     }
-
     dl {
-      font-family: monospace;
       font-size: 75%;
+      line-height: 1.25em;
       overflow: auto;
     }
     dt, dd {
@@ -31,32 +35,68 @@
     }
     dt {
       clear: left;
-      width: 170px;
+      width: 11em;
+      text-align: left;
     }
     dt:after {
       content: ':';
     }
     dd {
+      font-family: monospace;
+    }
+    #status {
+      min-height: 4em;
+      margin-top: 0;
+      margin-bottom: 2em;
+      overflow: visible;
+      clear: both;
+    }
+    button {
+      font-size: 1em;
+      line-height: 30px;
+      display: inline-block;
+      padding: 0;
+      border: 0;
+      cursor: pointer;
+      background: none;
+      color: inherit;
+      text-align: center;
+    }
+    .play, .pause {
+      display: block;
+      width: 30px;
+      height: 30px;
+      vertical-align: middle;
+      line-height: inherit;
+      margin: 0 auto;
+    }
+    .play:before {
+      content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 8 496 496"><path fill="#fff" d="M371.7 238l-176-107c-15.8-8.8-35.7 2.5-35.7 21v208c0 18.4 19.8 29.8 35.7 21l176-101c16.4-9.1 16.4-32.8 0-42zM504 256C504 119 393 8 256 8S8 119 8 256s111 248 248 248 248-111 248-248zm-448 0c0-110.5 89.5-200 200-200s200 89.5 200 200-89.5 200-200 200S56 366.5 56 256z"/></svg>');
+    }
+    .pause:before {
+      content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 8 496 496"><path fill="#fff" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm96-280v160c0 8.8-7.2 16-16 16h-48c-8.8 0-16-7.2-16-16V176c0-8.8 7.2-16 16-16h48c8.8 0 16 7.2 16 16zm-112 0v160c0 8.8-7.2 16-16 16h-48c-8.8 0-16-7.2-16-16V176c0-8.8 7.2-16 16-16h48c8.8 0 16 7.2 16 16z"/></svg>');
     }
   </style>
 </head>
 <body>
-  <p id="status"></p>
-  <dl>
-    <dt>Downloaded</dt>
-    <dd id="progress"></dd>
+  <main>
+    <p id="status"></p>
+    <dl>
+      <dt>Downloaded</dt>
+      <dd id="progress"></dd>
 
-    <dt>Read Buffer Size</dt>
-    <dd id="rbSize"></dd>
+      <dt>Read Buffer Size</dt>
+      <dd id="rbSize"></dd>
 
-    <dt>AudioBuffer Created</dt>
-    <dd id="abCreated"></dd>
+      <dt>AudioBuffer Created</dt>
+      <dd id="abCreated"></dd>
 
-    <dt>AudioBuffer Played</dt>
-    <dd id="abEnded"></dd>
+      <dt>AudioBuffer Played</dt>
+      <dd id="abEnded"></dd>
 
-    <dt>AudioBuffer Unplayed</dt>
-    <dd id="abRemaining"></dd>
-  </dl>
+      <dt>AudioBuffer Unplayed</dt>
+      <dd id="abRemaining"></dd>
+    </dl>
+  </main>
 </body>
 </html>
