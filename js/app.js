@@ -43,7 +43,7 @@ function playResponseAsStream(response, readBufferSize) {
       } else {
         bytesRead+= value.byteLength;
         UI.downloadProgress({bytesRead, bytesTotal})
-        
+
         for (byte of value) {
           readBufferView[readBufferPos++] = byte;
           if (readBufferPos === readBufferSize) {
@@ -105,8 +105,8 @@ const AudioStreamPlayer = (function() {
   }
 
   function schedulePlayback({channelData, length, numberOfChannels, sampleRate}) {
-    const audioSrc = audioCtx.createBufferSource();
-    const audioBuffer = audioCtx.createBuffer(numberOfChannels,length, sampleRate);
+    const audioSrc = audioCtx.createBufferSource(),
+          audioBuffer = audioCtx.createBuffer(numberOfChannels,length, sampleRate);
 
     audioSrc.onended = onAudioNodeEnded;
     abCreated++;
@@ -166,6 +166,7 @@ const AudioStreamPlayer = (function() {
 const UI = (function() {
   const id = document.getElementById.bind(document);
 
+  // display elements
   let elStatus, elProgress, elRbSize, elAbCreated, elAbEnded, elAbRemaining;
 
   document.addEventListener('DOMContentLoaded', _ => {
@@ -196,6 +197,7 @@ const UI = (function() {
   }
 
   function error(content) {
+    console.error(content);
     status(content)
   }
 
