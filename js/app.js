@@ -1,7 +1,7 @@
 'use strict'
 
 // fetch('audio/rock-48000hz-trim.wav') // Localhost testing requires CORS config to obtain Content-Length 
-fetch('https://fetch-stream-audio.anthum.com/200kbps/rock-48000hz-trim.wav')
+fetch('https://fetch-stream-audio.anthum.com/nolimit/house-41000hz-trim.wav')
 .then(response => playResponseAsStream(response, 16*1024))
 .then(_ => console.log('all stream bytes queued for decoding'))
 .catch(e => UI.error(e))
