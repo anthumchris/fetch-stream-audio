@@ -1,0 +1,14 @@
+[submodule "src/opusfile"]
+	path = src/opusfile
+	url = git@github.com:xiph/opusfile.git
+	branch = v0.10
+
+[submodule "src/opus"]
+	path = src/opus
+	url = git@github.com:xiph/opus.git
+	branch = v1.3-beta
+
+[submodule "src/ogg"]
+	path = src/ogg
+	url = git@github.com:xiph/ogg.git
+	branch = v1.3.3
