@@ -11,15 +11,14 @@ typedef struct {
      "...pages are a maximum of just under 64kB"
 
      Tested with 512kbps Opus file whose first data page ended at 54880 bytes
-
-     TODO: return error somewhere if instantiation can't be reached when size is reached
    */
   unsigned char _data[64*1024];
 
   // *start is first position of _data, *cusor moves as reads occur
   unsigned char *start, *cursor;
 
-  // this decreases as *cursor moves forward
+  // this tracks number undecoded bytes in buffer
+  // increases when bytes are enqueued, decreases when decoded
   int num_unread;
 } ByteBuffer;
 
@@ -34,7 +33,8 @@ typedef struct {
 OpusChunkDecoder *opus_chunkdecoder_create();
 void opus_chunkdecoder_free(OpusChunkDecoder *);
 
-void opus_chunkdecoder_enqueue(OpusChunkDecoder *, unsigned char *data, size_t data_size);
+// Returns 0/1 indicating failure/success.
+int opus_chunkdecoder_enqueue(OpusChunkDecoder *, unsigned char *data, size_t data_size);
 
 // returns total samples decoded for decoded data
 int opus_chunkdecoder_decode_float_stereo(OpusChunkDecoder *decoder, float *pcm_out, int pcm_out_size);

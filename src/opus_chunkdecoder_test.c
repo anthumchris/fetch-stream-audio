@@ -136,12 +136,15 @@ int main(int argc, char **argv) {
         pcm_float_right[pcm_size];
 
   while( (bytes_read = fread(readbufferp, sizeof *readbufferp, READ_SIZE, infile)) ) {
-    opus_chunkdecoder_enqueue(decoder, readbufferp, bytes_read);
+    if ( !opus_chunkdecoder_enqueue(decoder, readbufferp, bytes_read) ) {
+      fprintf(stderr, "ERROR: File could not be decoded.\n");
+      return 0;
+    }
     for (;;) {
       samples_decoded = opus_chunkdecoder_decode_float_stereo(decoder, pcm_float, pcm_size_interleaved);
       write_pcm_float(pcm_float, samples_decoded);
 
-      fprintf(stderr, "samples_decoded: %d, pcm: %zd, pcm_size_interleaved: %d\n", samples_decoded, sizeof(pcm_float)/sizeof(*pcm_float), pcm_size_interleaved);
+      // fprintf(stderr, "samples_decoded: %d, pcm: %zd, pcm_size_interleaved: %d\n", samples_decoded, sizeof(pcm_float)/sizeof(*pcm_float), pcm_size_interleaved);
       if (!samples_decoded) break;
 
       total_samples_decoded += samples_decoded;

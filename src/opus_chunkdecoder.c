@@ -25,20 +25,45 @@ static int cb_read(OpusChunkDecoder *decoder, unsigned char *_ptr, int _nbytes) 
   return _nbytes;
 }
 
-/* TODO prevent segmentation fault that could occur from buffer overflow
- * if too many undecoded bytes are enqueued before they are decoded.
- * decoder->buffer would overflow.
- *
+/*
  * Feed opus audio data for decoding.  Calling program should enqueue and decode
- * immedately after decoding to reduce decoding latency and reduce size of
- * undecoded decoder->buffer data.
+ * immedately after enqueuing to reduce decoding latency and reduce size of
+ * undecoded decoder->buffer data. Per https://xiph.org/ogg/doc/oggstream.html,
+ * decoding would be possible by 64k.  Otherwise, you're feeding invalid Opus
+ * data that is not recognized as a valid, decodable Ogg Opus File
+ *
+ * The undecoded 64k buffer won't overflow and this method succeeds if:
+ *
+ *   1) You enqueue bytes in sizes that are divisors of 64 (64, 32, 16, etc)
+ *   2) You enqueue valid Opus audio data that can be decoded
+ *   3) You decode data after enqueing it (thus removing it from undecoded buffer)
+ *
+ * Returns 1 or 0 for success or error
  */
-void opus_chunkdecoder_enqueue(OpusChunkDecoder *decoder, unsigned char *data, size_t size) {
+int opus_chunkdecoder_enqueue(OpusChunkDecoder *decoder, unsigned char *data, size_t size) {
+  int bufferMax = sizeof(decoder->buffer._data),
+      bufferUsed = decoder->buffer.num_unread;
+
+  // fprintf(stdout, "Undecoded: %zd\n", bufferUsed);
+
+  if (bufferUsed + size > bufferMax) {
+    fprintf(stderr, "ERROR: Cannot enqueue %zd bytes, overflows by %zd. Used: "\
+                    "%zd/%zd, OggOpusFile discovered: %s. " \
+                    "Try reducing chunk or decode before enqueuing more\n",
+      size,
+      size + bufferUsed - bufferMax,
+      bufferUsed,
+      bufferMax,
+      (!decoder->of)? "false" : "true"
+    );
+    return 0;
+  }
+
   decoder->buffer.cursor = decoder->buffer.start;
 
   /*
     initialize OggOpusFile if not yet initialized.  A few attempts are needed
-    until enough bytes are collected for it to instantiate
+    until enough bytes are collected for it to discover first Ogg page
   */
   if (!decoder->of) {
     memcpy( decoder->buffer.cursor + decoder->buffer.num_unread, data, size );
@@ -55,16 +80,18 @@ void opus_chunkdecoder_enqueue(OpusChunkDecoder *decoder, unsigned char *data, s
     );
 
     if (err == 0) {
-      fprintf(stderr, "OggOpusFile instanted after reading %zd bytes\n", decoder->buffer.num_unread);
+      fprintf(stderr, "OggOpusFile discovered with %zd bytes\n", decoder->buffer.num_unread);
 
-      // OggOpusFile instantiated.  Reset buffer
+      // OggOpusFile instantiated.  Reset unread buffer count
       decoder->buffer.num_unread = 0;
     }
   } else {
     // set buffer to new data
-    decoder->buffer.num_unread = size;
+    decoder->buffer.num_unread += size;
     memcpy( decoder->buffer.cursor, data, size );
   }
+
+  return 1;
 }
 
 // returns total samples decoded
