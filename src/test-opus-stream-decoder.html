@@ -9,11 +9,12 @@
       'use strict'
 
       const opusFile = 'https://fetch-stream-audio.anthum.com/audio/opus/decode-test-64kbps.opus';
+      let totalSamplesDecoded = 0;
 
       // Fetch a file and decode it.
       fetch(opusFile)
       .then(decodeOpusResponse)
-      .then(_ => console.log('decoding complete'))
+      .then(_ => console.log('decoded '+totalSamplesDecoded+' samples.'))
       .catch(console.error);
 
       // decode Fetch response
@@ -38,8 +39,8 @@
       }
 
       // Callback that receives decoded PCM OpusStreamDecodedAudio
-      function onDecode({left, right, sampleRate}) {
-        // TODO play in browser
+      function onDecode({left, right, samplesDecoded, sampleRate}) {
+        totalSamplesDecoded+=samplesDecoded;
       }
     </script>
   </body>
