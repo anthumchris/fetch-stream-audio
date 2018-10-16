@@ -90,43 +90,53 @@ OpusStreamDecoder.prototype.decode = function(uint8array) {
     srcPointer = this.api.malloc(uint8array.BYTES_PER_ELEMENT * srcLen);
     this.api.HEAPU8.set(uint8array, srcPointer);
 
-    // TODO throttle bytes received to 16k to prevent > 64k being enqueued at once
-    // (Firefox returns large local chunks during tests)
+    // Throttle bytes enqueued to 64k max to prevent bufferflow in underlying
+    // Wasm buffer (see https://github.com/AnthumChris/fetch-stream-audio/issues/5)
+    var maxBufferSize = 64*1024;
+    var bufferStart = srcPointer;
+    var bufferMax = bufferStart + uint8array.length;
 
-    // enqueue bytes to decode. Fail on error
-    if (!this.api.enqueue(this._decoderPointer, srcPointer, srcLen))
-      throw Error('Could not enqueue bytes for decoding.  You may also have invalid Ogg Opus file.');
+    while (bufferStart < bufferMax) {
+      const bufferEnd = Math.min(maxBufferSize, bufferMax-bufferStart);
 
-    // 120ms buffer recommended per http://opus-codec.org/docs/opusfile_api-0.7/group__stream__decoding.html
-    var decodedPcmSize = 120*48*2; // 120ms @ 48 khz * 2 channels.
+      // enqueue bytes to decode. Fail on error
+      if (!this.api.enqueue(this._decoderPointer, bufferStart, bufferEnd))
+        throw Error('Could not enqueue bytes for decoding.  You may also have invalid Ogg Opus file.');
 
-    // All decoded PCM data will go into these arrays.  Pass pointers to Wasm
-    [decodedInterleavedPtr, decodedInterleavedArry] = this.createOutputArray(decodedPcmSize);
-    [decodedLeftPtr, decodedLeftArry] = this.createOutputArray(decodedPcmSize/2);
-    [decodedRightPtr, decodedRightArry] = this.createOutputArray(decodedPcmSize/2);
+      // 120ms buffer recommended per http://opus-codec.org/docs/opusfile_api-0.7/group__stream__decoding.html
+      var decodedPcmSize = 120*48*2; // 120ms @ 48 khz * 2 channels.
 
-    // // continue to decode until no more bytes are left to decode
-    var samplesDecoded, totalSamplesDecoded = 0;
-    // var decodeStart = performance.now();
-    while (samplesDecoded = this.api.decode(
-      this._decoderPointer,
-      decodedInterleavedPtr,
-      decodedPcmSize,
-      decodedLeftPtr,
-      decodedRightPtr
-    )) {
-      // performance audits show 960 samples (20ms) of data being decoded per call
-      // console.log('decoded',(samplesDecoded/48000*1000).toFixed(2)+'ms in', (performance.now()-decodeStart).toFixed(2)+'ms');
+      // All decoded PCM data will go into these arrays.  Pass pointers to Wasm
+      [decodedInterleavedPtr, decodedInterleavedArry] = this.createOutputArray(decodedPcmSize);
+      [decodedLeftPtr, decodedLeftArry] = this.createOutputArray(decodedPcmSize/2);
+      [decodedRightPtr, decodedRightArry] = this.createOutputArray(decodedPcmSize/2);
 
-      totalSamplesDecoded+=samplesDecoded;
-      // return copies of decoded bytes because underlying buffers will be re-used
-      this.onDecode(new OpusStreamDecodedAudio(
-        decodedLeftArry.slice(0, samplesDecoded),
-        decodedRightArry.slice(0, samplesDecoded),
-        samplesDecoded
-      ));
+      // // continue to decode until no more bytes are left to decode
+      var samplesDecoded, totalSamplesDecoded = 0;
+      // var decodeStart = performance.now();
+      while (samplesDecoded = this.api.decode(
+        this._decoderPointer,
+        decodedInterleavedPtr,
+        decodedPcmSize,
+        decodedLeftPtr,
+        decodedRightPtr
+      )) {
+        // performance audits show 960 samples (20ms) of data being decoded per call
+        // console.log('decoded',(samplesDecoded/48000*1000).toFixed(2)+'ms in', (performance.now()-decodeStart).toFixed(2)+'ms');
 
-      // decodeStart = performance.now();
+        totalSamplesDecoded+=samplesDecoded;
+        // return copies of decoded bytes because underlying buffers will be re-used
+        this.onDecode(new OpusStreamDecodedAudio(
+          decodedLeftArry.slice(0, samplesDecoded),
+          decodedRightArry.slice(0, samplesDecoded),
+          samplesDecoded
+        ));
+
+        // decodeStart = performance.now();
+      }
+
+      bufferStart += maxBufferSize;
+
     }
   } catch (e) {
     throw e;
