@@ -29,6 +29,7 @@ const outLeftFileStream = fs.createWriteStream(pcmOutLeftFile);
 const outRightFileStream = fs.createWriteStream(pcmOutRightFile);
 
 // read file in 16k chunks and send to Opus decoder
+let totalSamplesDecoded = 0;
 inFileStream
 .on('data', async data => {
   try {
@@ -42,11 +43,16 @@ inFileStream
 })
 .on('end', _ => {
   decoder.free();
-  console.log(
-    'Done! Listen to decoded files: ',
-    pcmOutLeftFile.replace(currentFolder,''),
-    pcmOutRightFile.replace(currentFolder,'')
+  if (!totalSamplesDecoded) {
+    console.error('File could not be decoded.')
+  } else {
+    console.log(
+      'Decoded '+totalSamplesDecoded+' samples.',
+      'Listen to decoded files: ',
+      pcmOutLeftFile.replace(currentFolder,''),
+      pcmOutRightFile.replace(currentFolder,'')
     )
+  }
 }).on('error', err => {
   decoder.free();
   showError(err)
@@ -54,6 +60,7 @@ inFileStream
 
 
 function onDecode(decodedPcm) {
+  totalSamplesDecoded+= decodedPcm.samplesDecoded;
   outLeftFileStream.write(Buffer.from(decodedPcm.left.buffer));
   outRightFileStream.write(Buffer.from(decodedPcm.right.buffer));
 }
