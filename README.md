@@ -9,7 +9,40 @@ This repo is **incomplete/in-progress** and will provide examples for programati
 Development will occur in the following phases:
 
 1. **WAV Streaming** &nbsp; ✅ *complete*<br>WAV files are streamed and decoded by a Web Worker.  Chunks are scheduled into a read boffer before sending to encoder to ensure decoder receives complete, decodable chunks.  JavaScript (not WebAssembly) is used for decoding.
-1. **Opus Streaming** &nbsp; 😶 *incomplete*<br>WebAssembly will be used to decode [Opus](http://opus-codec.org/) files.  This would simulate a real-world use case of streaming compressed audio over the web.  (MP3 is old and outdated for those of us who grew up with WinPlay3.  Opus is the new gold standard).
+1. **Opus Streaming** &nbsp; 😶 *incomplete*<br>`OpusStreamDecoder` is now available for decoding [Opus](http://opus-codec.org/) files on-the-fly using WebAssembly but is not yet integrated into this repo's playback example.  (MP3 is old and outdated for those of us who grew up with WinPlay3.  Opus is the new gold standard).
+
+# Using `OpusStreamDecoder`
+
+`OpusStreamDecoder` is intended to immediately decode an Ogg Opus file in chunks without waiting or the full file to download.  Full examples are included in the `dist` folder, and basic usage is pseudocoded below.  You must call `decode()` sequentially from the start of the file until the end.  `OpusStreamDecoder` must read from the beginning of the file to "discover" it as a valid Ogg Opus file so that decoding begins.  The high-level api was designed to be as simple as possible.  `decoder.ready` is a promise that resolves once the underlying WebAssembly module is loaded, but you can safely start reading your file and calling `decoder.ready.then(...)` immediately.  
+
+```javascript
+<script src="opus-stream-decoder.js"></script>
+<script>
+  // instantiate with onDecode callback that fires when OggOpusFile data is decoded
+  const decoder = new OpusStreamDecoder({onDecode});
+
+  // Loop through your Opusdata callingdecode() multiple times. Pass a Uint8Array
+  while(...) {
+    decoder.ready.then(_ => decoder.decode(UINT8_DATA_TO_DECODE));
+  }
+  
+  // free up the decoder's memory in WebAssembly (also resets decoder for reuse)
+  decoder.ready.then(_ => decoder.free());
+
+  // after free() is called, you could reuse the decoder for another file
+  while(...) {
+    decoder.ready.then(_ => decoder.decode(UINT8_DATA_TO_DECODE));
+  }
+
+  // left/right contains Float32Array PCM values and sampleRate is always 48000
+  // Always decodes to 2 channels.  Mono would be in both, and multichannel Opus files
+  // would be downmixed to 2 channels.
+  function onDecode({left, right, samplesDecoded, sampleRate}) {
+    console.log(`Decoded ${samplesDecoded} samples`);
+    // play back the left/right audio, write to a file, etc
+  }
+</script>
+```
 
 # Building `OpusStreamDecoder` WebAssembly Module
 
