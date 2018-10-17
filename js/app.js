@@ -1,8 +1,9 @@
 'use strict'
 
-fetch('audio/opus/🐟.--64kbs.opus') // Localhost testing requires CORS config to obtain Content-Length 
-.then(response => playResponseAsStream(response, 1024*1024))
-.then(_ => console.log('-- done reading stream'))
+// fetch('audio/rock-48000hz-trim.wav') // Localhost testing requires CORS config to obtain Content-Length 
+fetch('https://fetch-stream-audio.anthum.com/nolimit/house-41000hz-trim.wav')
+.then(response => playResponseAsStream(response, 16*1024))
+.then(_ => console.log('all stream bytes queued for decoding'))
 .catch(e => UI.error(e))
 
 
@@ -21,7 +22,7 @@ function playResponseAsStream(response, readBufferSize) {
         contentLength = response.headers.get('content-length'), // requires CORS access-control-expose-headers: content-length
         bytesTotal = contentLength? parseInt(contentLength, 10) : 0,
         readBuffer = new ArrayBuffer(readBufferSize),
-        readBufferArray = new Uint8Array(readBuffer);
+        readBufferView = new Uint8Array(readBuffer);
 
   let bytesRead = 0, byte, readBufferPos = 0;
 
@@ -29,17 +30,9 @@ function playResponseAsStream(response, readBufferSize) {
 
   // TODO errors in underlying Worker must be dealt with here.
   function flushReadBuffer() {
-    console.log('flushReadBuffer')
-    AudioStreamPlayer.enqueueForDecoding(new Uint8Array(readBufferArray.slice(0, readBufferPos)));
+    AudioStreamPlayer.enqueueForDecoding(readBuffer.slice(0, readBufferPos));
     readBufferPos = 0;
   }
-
-  //
-  // let prevChunk = 
-  const oggMagicNumber = 1399285583,  // 32-bit unsigned int indicating beginning of Opus bitstream page
-        minFlushBuffer = 55*1024;      // minimum byte length to reach before flushing buffer.  this is tricky because of varying page sizes (64kbs has ~ 8,000 bytes, 192kbs around 26,000)
-
-  let bufferView;
 
   // Fill readBuffer and flush when readBufferSize is reached
   function read() {
@@ -52,44 +45,11 @@ function playResponseAsStream(response, readBufferSize) {
         UI.downloadProgress({bytesRead, bytesTotal})
 
         for (byte of value) {
-          readBufferArray[readBufferPos++] = byte;
+          readBufferView[readBufferPos++] = byte;
+          if (readBufferPos === readBufferSize) {
+            flushReadBuffer();
+          }
         }
-        // find page boundaries. for each byte position, read 32-bit integer 
-        // bufferView = new DataView(value.buffer)
-        // for (let i=0; i<bufferView.byteLength-32; i++) {
-        //   if (bufferView.getInt32(i, true) === oggMagicNumber) {
-        //     let page = bufferView.getUint16(i+18, true);
-        //     console.log('page #', page)
-        //     if (page >= 12) {
-        //       console.log('readBuffer', readBuffer.byteLength)
-        //       // flushReadBuffer();
-        //       findPages(readBuffer)
-        //       return;
-        //     }
-
-        //     // if (readBufferPos >= minFlushBuffer) {
-        //     //   flushReadBuffer();
-        //     //   if (page >= 4) {
-        //     //     return;
-        //     //   }
-        //     // }
-        //   }
-        //   readBufferArray[readBufferPos++] = value[i];
-        // }
-
-        if (readBufferPos >= readBufferSize) {
-          console.log('readBufferPos',readBufferPos)
-          findPages(readBuffer)
-          reader.cancel();
-          return;
-        }
-
-        // for (byte of value) {
-        //   readBufferArray[readBufferPos++] = byte;
-        //   if (readBufferPos === readBufferSize) {
-        //     flushReadBuffer();
-        //   }
-        // }
 
         return read();
       }
@@ -100,86 +60,9 @@ function playResponseAsStream(response, readBufferSize) {
 }
 
 
-
-
-
-
-
-
-
-
-
-function findPages(buffer) {
-  console.log('buffer', buffer.byteLength)
-  const view = new DataView(buffer),
-        
-        uint8array = new Uint8Array(buffer),
-        uint32array = new Uint32Array(buffer),
-
-        decoder = new TextDecoder();
-
-  let pages = [], uint32;
-
-  for (let i=0; i<view.byteLength-32; i++) {
-    uint32 = view.getUint32( i, true );
-    if (uint32 == 1399285583) {
-      let page = view.getUint32(i+18, true);
-      // console.log(`----- page ${page} -----`);
-      // console.log(uint8array.subarray(i,i+32))
-      // console.log(decoder.decode(uint8array.subarray(i,i+32)))
-      pages.push(i)
-    }
-  }
-  // for (let i=1; i<pages.length; i++) {
-  //   console.log('pageLength', pages[i]-pages[i-1]);
-  // }
-  // console.log(pages)
-  console.log('pages read: '+pages.length)
-  // AudioStreamPlayer.enqueueForDecoding(uint8array);
-
-  const sendEvery = 10;
-  for (var i=0; i<pages.length-sendEvery; i+=sendEvery) {
-    console.log('sending for enqueue');
-    AudioStreamPlayer.enqueueForDecoding(uint8array.slice( pages[i], pages[i+sendEvery]));
-  }
-  if (pages.length%sendEvery) {
-    console.log('sending for enqueue');
-    AudioStreamPlayer.enqueueForDecoding(uint8array.slice( pages[pages.length-(pages.length%sendEvery)], pages[pages.length-1]));
-  }
-  // AudioStreamPlayer.enqueueForDecoding(uint8array.slice( pages[0], pages[5]));
-  // AudioStreamPlayer.enqueueForDecoding(uint8array.slice( pages[5], pages[10]));
-  // AudioStreamPlayer.enqueueForDecoding(uint8array.slice( pages[0], pages[pages.length-1] ));
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function debugHex(typedArray) {
-  let ary = Array.prototype.map.call(typedArray.subarray(0,20), i => i);
-  console.log(' int', ary)
-  console.log('char', ary.map(i => String.fromCharCode(i)))
-  console.log(' hex', ary.map(i => i.toString(16)))
-  console.log('----------');
-  ary = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
-  console.log(' int', ary)
-  console.log('char', ary.map(i => String.fromCharCode(i)))
-  console.log(' hex', ary.map(i => i.toString(16)))  
-}
-
 // Main controller for playing chunks enqueued for decoding.  
 const AudioStreamPlayer = (function() {
-  const worker = new Worker('/js/decoderWorker.js'),
+  const worker = new Worker('/js/worker-decoder.js'),
         audioCtx = new (window.AudioContext || window.webkitAudioContext)(),
         audioSrcNodes = []; // Used to fix Safari Bug https://github.com/AnthumChris/fetch-stream-audio/issues/1
 
@@ -193,24 +76,15 @@ const AudioStreamPlayer = (function() {
   worker.onerror = event => {};
 
   worker.onmessage = event => {
-    if (event.data) {
+    if (event.data.channelData) {
       const decoded = event.data;
 
       // convert Transferrable ArrayBuffer to Float32Array
-      // decoded.channelData = decoded.channelData.map(arrayBuffer => new Float32Array(arrayBuffer));
-      schedulePlayback({
-        channelData: event.data,
-        length: event.data[0].length,
-        numberOfChannels: event.data.length,
-        sampleRate: 48000
-      });
+      decoded.channelData = decoded.channelData.map(arrayBuffer => new Float32Array(arrayBuffer));
+
+      schedulePlayback(decoded);
     }
   }
-
-  worker.postMessage({ 
-    command:'init',
-    bufferLength: 8*1024
-  });
 
   // Pause/Resume with space bar
   document.onkeydown = event => {
@@ -226,12 +100,8 @@ const AudioStreamPlayer = (function() {
   }
 
   // arrayBuffer will be inaccessible to caller after performant Transferable postMessage()
-  function enqueueForDecoding(typedArray) {
-    // worker.postMessage({decode: arrayBuffer}, [arrayBuffer]);
-    worker.postMessage({
-      command: 'decode',
-      pages: typedArray
-    }, [typedArray.buffer] );
+  function enqueueForDecoding(arrayBuffer) {
+    worker.postMessage({decode: arrayBuffer}, [arrayBuffer]);
   }
 
   function schedulePlayback({channelData, length, numberOfChannels, sampleRate}) {
@@ -271,8 +141,6 @@ const AudioStreamPlayer = (function() {
     audioSrc.connect(audioCtx.destination);
     audioSrc.start(playStartedAt+totalTimeScheduled);
     totalTimeScheduled+= audioBuffer.duration;
-    console.log(audioBuffer.duration)
-    // console.l32('totalTimeScheduled',totalTimeScheduled)
   }
 
   function updateUI() {
