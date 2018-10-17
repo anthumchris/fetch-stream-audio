@@ -11,10 +11,9 @@ if ('undefined' !== typeof global && exports) {
 }
 
 // Decoder will pass decoded PCM data to onDecode
-function OpusStreamDecodedAudio(left, right, samplesDecoded) {
+function OpusStreamDecodedAudio(left, right) {
   this.left = left;
   this.right = right;
-  this.samplesDecoded = samplesDecoded;
   this.sampleRate = 48000;
 }
 
@@ -106,7 +105,7 @@ OpusStreamDecoder.prototype.decode = function(uint8array) {
     [decodedRightPtr, decodedRightArry] = this.createOutputArray(decodedPcmSize/2);
 
     // // continue to decode until no more bytes are left to decode
-    var samplesDecoded, totalSamplesDecoded = 0;
+    var samplesDecoded;
     // var decodeStart = performance.now();
     while (samplesDecoded = this.api.decode(
       this._decoderPointer,
@@ -118,12 +117,10 @@ OpusStreamDecoder.prototype.decode = function(uint8array) {
       // performance audits show 960 samples (20ms) of data being decoded per call
       // console.log('decoded',(samplesDecoded/48000*1000).toFixed(2)+'ms in', (performance.now()-decodeStart).toFixed(2)+'ms');
 
-      totalSamplesDecoded+=samplesDecoded;
       // return copies of decoded bytes because underlying buffers will be re-used
       this.onDecode(new OpusStreamDecodedAudio(
         decodedLeftArry.slice(0, samplesDecoded),
-        decodedRightArry.slice(0, samplesDecoded),
-        samplesDecoded
+        decodedRightArry.slice(0, samplesDecoded)
       ));
 
       // decodeStart = performance.now();
