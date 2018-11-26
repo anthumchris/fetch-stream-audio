@@ -12,8 +12,8 @@ This repo is **incomplete/in-progress** and will provide examples for programati
 
 Development will occur in the following phases:
 
-1. **WAV Streaming** &nbsp; ✅ *complete*<br>WAV files are streamed and decoded by a Web Worker.  Chunks are scheduled into a read boffer before sending to encoder to ensure decoder receives complete, decodable chunks.  JavaScript (not WebAssembly) is used for decoding.
-1. **Opus Streaming** &nbsp; 😶 *incomplete*<br>WebAssembly will be used to decode [Opus](http://opus-codec.org/) files.  This would simulate a real-world use case of streaming compressed audio over the web.  (MP3 is old and outdated for those of us who grew up with WinPlay3.  Opus is the new gold standard).  
+1. **WAV Streaming** &nbsp; ✅ *complete*<br>WAV files are streamed and decoded by a Web Worker.  Chunks are scheduled into a read buffer before sending to encoder to ensure decoder receives complete, decodable chunks.  JavaScript (not WebAssembly) is used for decoding.
+1. **Opus Streaming** &nbsp; 😶 *incomplete*<br>WebAssembly [`opus-stream-decoder`](https://github.com/AnthumChris/opus-stream-decoder) will be used to decode [Opus](http://opus-codec.org/) files.  This would simulate a real-world use case of streaming compressed audio over the web.  (MP3 is old and outdated for those of us who grew up with WinPlay3.  Opus is the new gold standard).  [`opus-stream-decoder`](https://github.com/AnthumChris/opus-stream-decoder) is now production-ready but has not yet been integrated into this repo.
 
 # Back-End Server
 
