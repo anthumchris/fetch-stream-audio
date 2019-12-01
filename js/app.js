@@ -1,11 +1,15 @@
 'use strict'
 
-// fetch('audio/rock-48000hz-trim.wav') // Localhost testing requires CORS config to obtain Content-Length 
-fetch('https://fetch-stream-audio.anthum.com/nolimit/house-41000hz-trim.wav')
-.then(response => playResponseAsStream(response, 16*1024))
-.then(_ => console.log('all stream bytes queued for decoding'))
-.catch(e => UI.error(e))
+// await DOM click from user
+function start() {
+  AudioStreamPlayer.init();
 
+  // fetch('audio/rock-48000hz-trim.wav') // Localhost testing requires CORS config to obtain Content-Length
+  fetch('https://fetch-stream-audio.anthum.com/nolimit/house-41000hz-trim.wav')
+  .then(response => playResponseAsStream(response, 16*1024))
+  .then(_ => console.log('all stream bytes queued for decoding'))
+  .catch(e => UI.error(e))
+}
 
 /* Chunks read must be buffered before sending to decoder.
  * Otherwise, decoder returns white noise for odd (not even) chunk size).
@@ -63,14 +67,15 @@ function playResponseAsStream(response, readBufferSize) {
 // Main controller for playing chunks enqueued for decoding.  
 const AudioStreamPlayer = (function() {
   const worker = new Worker('/js/worker-decoder.js'),
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)(),
         audioSrcNodes = []; // Used to fix Safari Bug https://github.com/AnthumChris/fetch-stream-audio/issues/1
 
 
   let totalTimeScheduled = 0,   // time scheduled of all AudioBuffers
       playStartedAt = 0,        // audioContext.currentTime of first scheduled play buffer
       abCreated = 0,            // AudioBuffers created
-      abEnded = 0;              // AudioBuffers played/ended
+      abEnded = 0,              // AudioBuffers played/ended
+      audioCtx;                 // now requires user gesture to init https://goo.gl/7K7WLu
+
 
   // TODO errors should be signaled to caller
   worker.onerror = event => {};
@@ -97,6 +102,10 @@ const AudioStreamPlayer = (function() {
     audioSrcNodes.shift();
     abEnded++;
     updateUI();
+  }
+
+  function init() {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
 
   // arrayBuffer will be inaccessible to caller after performant Transferable postMessage()
@@ -156,6 +165,7 @@ const AudioStreamPlayer = (function() {
   }
 
   return {
+    init,
     enqueueForDecoding,
     togglePause
   }

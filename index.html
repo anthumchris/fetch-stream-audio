@@ -62,6 +62,12 @@
       color: inherit;
       text-align: center;
     }
+    .start {
+      background: #fff;
+      color: #07053c;
+      padding: .25em .5em;
+      border-radius: 5px;
+    }
     .play, .pause {
       display: block;
       width: 30px;
@@ -80,7 +86,7 @@
 </head>
 <body>
   <main>
-    <p id="status"></p>
+    <p id="status"><button class="start" onclick="start()">Start</button></p>
     <dl>
       <dt>Downloaded</dt>
       <dd id="progress"></dd>
