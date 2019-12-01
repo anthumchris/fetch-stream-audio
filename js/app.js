@@ -46,7 +46,10 @@ function playResponseAsStream(response, readBufferSize) {
         return;
       } else {
         bytesRead+= value.byteLength;
-        UI.downloadProgress({bytesRead, bytesTotal})
+
+        requestAnimationFrame(_ => {
+          UI.downloadProgress({bytesRead, bytesTotal})
+        })
 
         for (byte of value) {
           readBufferView[readBufferPos++] = byte;
@@ -153,7 +156,9 @@ const AudioStreamPlayer = (function() {
   }
 
   function updateUI() {
-    UI.audioBufferUpdate({abCreated, abEnded});
+    requestAnimationFrame(_ => {
+      UI.audioBufferUpdate({abCreated, abEnded});
+    })
   }
 
   function togglePause() {
