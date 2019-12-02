@@ -19,10 +19,10 @@ Development will occur in the following phases:
 
 For all `/audio/*` URIs, an Nginx server is configured to intentionally limit download speeds and control response packet sizes for testing the decoding behavior (defined in [server.conf](.conf/nginx/server.conf)).  For example:
 
-https://fetch-stream-audio.anthum.com/nolimit/rock-48000hz-trim.wav<br>
-https://fetch-stream-audio.anthum.com/200kbps/rock-48000hz-trim.wav<br>
-https://fetch-stream-audio.anthum.com/192kbps/rock-48000hz-trim.wav<br>
-https://fetch-stream-audio.anthum.com/100kbps/rock-48000hz-trim.wav
+https://fetch-stream-audio.anthum.com/nolimit/opus/decode-test-64kbps.opus<br>
+https://fetch-stream-audio.anthum.com/10mbps/opus/decode-test-64kbps.opus<br>
+https://fetch-stream-audio.anthum.com/1.5mbps/opus/decode-test-64kbps.opus<br>
+https://fetch-stream-audio.anthum.com/512kbps/opus/decode-test-64kbps.opus
 
 # Acknowledgements
 
