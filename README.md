@@ -17,7 +17,7 @@ Development will occur in the following phases:
 
 # Back-End Server
 
-For all `/audio/*` URIs, an Nginx server is configured to intentionally limit download speeds and control response packet sizes for testing the decoding behavior (defined in [server.conf](.conf/nginx/server.conf)).  For example:
+For all `/audio/*` URIs, an Nginx server is configured to intentionally throttle and limit download speeds to control response packet sizes for testing the decoding behavior (defined in [server.conf](.conf/nginx/server.conf)).  For example:
 
 https://fetch-stream-audio.anthum.com/nolimit/opus/decode-test-64kbit.opus<br>
 https://fetch-stream-audio.anthum.com/10mbps/opus/decode-test-64kbit.opus<br>
@@ -25,7 +25,7 @@ https://fetch-stream-audio.anthum.com/1.5mbps/opus/decode-test-64kbit.opus<br>
 https://fetch-stream-audio.anthum.com/512kbps/opus/decode-test-64kbit.opus
 
 <details>
-<summary>All Endpoints</summary>
+<summary>All Throttled Endpoints</summary>
 
 | Speed      | Example URL |
 | ----------- | ----------- |
