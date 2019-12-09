@@ -15,9 +15,28 @@ Development will occur in the following phases:
 1. **WAV Streaming** &nbsp; ✅ *complete*<br>WAV files are streamed and decoded by a Web Worker.  Chunks are scheduled into a read buffer before sending to encoder to ensure decoder receives complete, decodable chunks.  JavaScript (not WebAssembly) is used for decoding.
 1. **Opus Streaming** &nbsp; 😶 *incomplete*<br>WebAssembly [`opus-stream-decoder`](https://github.com/AnthumChris/opus-stream-decoder) will be used to decode [Opus](http://opus-codec.org/) files.  This would simulate a real-world use case of streaming compressed audio over the web.  (MP3 is old and outdated for those of us who grew up with WinPlay3.  Opus is the new gold standard).  [`opus-stream-decoder`](https://github.com/AnthumChris/opus-stream-decoder) is now production-ready but has not yet been integrated into this repo.
 
-# Back-End Server
+# Back-End Nginx Server
 
-For all `/audio/*` URIs, an Nginx server is configured to intentionally throttle and limit download speeds to control response packet sizes for testing the decoding behavior (defined in [server.conf](.conf/nginx/server.conf)).  For example:
+To use the config files, create symblink `fetch-stream-audio`, e.g.:
+
+```
+$ ln -s [LOCATION_TO_THIS_REPO]/.conf/nginx /etc/nginx/fetch-stream-audio
+```
+
+Then, include this repo's nginx config file into your `server {}` block, e.g.:
+
+```nginx
+server {
+  ...
+
+  disable_symlinks off;
+  include fetch-stream-audio/include-server.conf;
+}
+```
+
+## Throttled Bandwidth Endpoints
+
+All `/audio/*` URIs are configured to intentionally limit download speeds and control response packet sizes for testing the decoding behavior (defined in [server.conf](.conf/nginx/server.conf)).  For example:
 
 https://fetch-stream-audio.anthum.com/nolimit/opus/decode-test-64kbit.opus<br>
 https://fetch-stream-audio.anthum.com/10mbps/opus/decode-test-64kbit.opus<br>
