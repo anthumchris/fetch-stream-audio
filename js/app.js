@@ -4,9 +4,12 @@
 function start() {
   AudioStreamPlayer.init();
 
+  // Trials showed 16K to be good. Lower values (2K) caused skipping in WAV
+  const playbackBufferSize = 1024 * 16;
+
   // fetch('/nolimit/audio/house-41000hz-trim.wav') // Localhost testing requires CORS config to obtain Content-Length
   fetch('https://fetch-stream-audio.anthum.com/2mbps/house-41000hz-trim.wav')
-  .then(response => playResponseAsStream(response, 16*1024))
+  .then(response => playResponseAsStream(response, playbackBufferSize))
   .then(_ => console.log('all stream bytes queued for decoding'))
   .catch(e => UI.error(e))
 }
