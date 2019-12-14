@@ -4,9 +4,9 @@
 function start() {
   AudioStreamPlayer.init();
 
-  // fetch('/1.5mbps/house-41000hz-trim.wav') // Localhost testing requires CORS config to obtain Content-Length
+  // fetch('/1.5mbps/house-trim.wav') // Localhost testing requires CORS config to obtain Content-Length
   fetch('https://fetch-stream-audio.anthum.com/1.5mbps/house-41000hz-trim.wav')
-  .then(response => playResponseAsStream(response, 16*1024))
+  .then(response => playResponseAsStream(response, 4*1024))
   .then(_ => console.log('all stream bytes queued for decoding'))
   .catch(e => UI.error(e))
 }
@@ -152,6 +152,7 @@ const AudioStreamPlayer = (function() {
       const startDelay = audioBuffer.duration + (audioCtx.baseLatency || 128 / audioCtx.sampleRate);
       playStartedAt = audioCtx.currentTime + startDelay;
       UI.playing();
+      setTimeout(UI.playbackStart, startDelay*1000);
     }
 
     audioSrc.buffer = audioBuffer
@@ -167,7 +168,9 @@ const AudioStreamPlayer = (function() {
   }
 
   function togglePause() {
-    if(audioCtx.state === 'running') {
+    if (!audioCtx) {
+      start()
+    } else if(audioCtx.state === 'running') {
       audioCtx.suspend().then(_ => UI.paused())
     } else if(audioCtx.state === 'suspended') {
       audioCtx.resume().then(_ => UI.playing())
@@ -187,7 +190,7 @@ const UI = (function() {
   const id = document.getElementById.bind(document);
 
   // display elements
-  let elStatus, elProgress, elRbSize, elAbCreated, elAbEnded, elAbRemaining, elSpeed;
+  let elStatus, elProgress, elRbSize, elAbCreated, elAbEnded, elAbRemaining, elSpeed, elPlayback;
 
   document.addEventListener('DOMContentLoaded', _ => {
     elStatus =      id('status');
@@ -197,6 +200,7 @@ const UI = (function() {
     elAbEnded =     id('abEnded');
     elAbRemaining = id('abRemaining');
     elSpeed =       id('speed');
+    elPlayback =    id('playbackLatency');
   })
 
   function downloadProgress({elapsed, bytesRead, bytesTotal}) {
@@ -220,6 +224,10 @@ const UI = (function() {
     elAbCreated.innerHTML = abCreated;
     elAbEnded.innerHTML = abEnded;
     elAbRemaining.innerHTML = abCreated-abEnded;
+  }
+
+  function playbackStart() {
+    elPlayback.innerText = (performance.now() - getDownloadStartTime()).toFixed(3)+'ms';
   }
 
   function error(content) {
@@ -246,6 +254,7 @@ const UI = (function() {
     status,
     error,
     playing,
-    paused
+    paused,
+    playbackStart
   }  
 })()
