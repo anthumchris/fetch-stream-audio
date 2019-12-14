@@ -4,9 +4,9 @@
 function start() {
   AudioStreamPlayer.init();
 
-  // fetch('/1.5mbps/house-trim.wav') // Localhost testing requires CORS config to obtain Content-Length
-  fetch('https://fetch-stream-audio.anthum.com/1.5mbps/house-41000hz-trim.wav')
-  .then(response => playResponseAsStream(response, 4*1024))
+  // fetch('/nolimit/audio/house-41000hz-trim.wav') // Localhost testing requires CORS config to obtain Content-Length
+  fetch('https://fetch-stream-audio.anthum.com/2mbps/house-41000hz-trim.wav')
+  .then(response => playResponseAsStream(response, 16*1024))
   .then(_ => console.log('all stream bytes queued for decoding'))
   .catch(e => UI.error(e))
 }
@@ -149,7 +149,8 @@ const AudioStreamPlayer = (function() {
     // initialize first play position.  initial clipping/choppiness sometimes occurs and intentional start latency needed
     // read more: https://github.com/WebAudio/web-audio-api/issues/296#issuecomment-257100626
     if (!playStartedAt) {
-      const startDelay = audioBuffer.duration + (audioCtx.baseLatency || 128 / audioCtx.sampleRate);
+      // const startDelay = audioBuffer.duration + (audioCtx.baseLatency || (128 / audioCtx.sampleRate));
+      const startDelay = audioCtx.baseLatency || (128 / audioCtx.sampleRate);
       playStartedAt = audioCtx.currentTime + startDelay;
       UI.playing();
       setTimeout(UI.playbackStart, startDelay*1000);
