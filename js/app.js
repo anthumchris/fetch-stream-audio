@@ -48,7 +48,7 @@ function playResponseAsStream(response, readBufferSize) {
         bytesRead+= value.byteLength;
 
         requestAnimationFrame(_ => {
-          UI.downloadProgress({bytesRead, bytesTotal})
+          UI.downloadProgress({startTime, bytesRead, bytesTotal})
         })
 
         for (byte of value) {
@@ -63,6 +63,7 @@ function playResponseAsStream(response, readBufferSize) {
     })
   }
 
+  const startTime = performance.now();
   return read()
 }
 
@@ -182,7 +183,7 @@ const UI = (function() {
   const id = document.getElementById.bind(document);
 
   // display elements
-  let elStatus, elProgress, elRbSize, elAbCreated, elAbEnded, elAbRemaining;
+  let elStatus, elProgress, elRbSize, elAbCreated, elAbEnded, elAbRemaining, elSpeed;
 
   document.addEventListener('DOMContentLoaded', _ => {
     elStatus =      id('status');
@@ -191,13 +192,19 @@ const UI = (function() {
     elAbCreated =   id('abCreated');
     elAbEnded =     id('abEnded');
     elAbRemaining = id('abRemaining');
+    elSpeed =       id('speed');
   })
 
-  function downloadProgress({bytesRead, bytesTotal}) {
+  function downloadProgress({startTime, bytesRead, bytesTotal}) {
     if (bytesTotal) {
-      let read = bytesRead; //.toLocaleString();
-      let total = bytesTotal; //.toLocaleString();
-      elProgress.innerHTML = `${Math.round(bytesRead/bytesTotal*100)}% ${read}/${total}`;
+      let read = Math.round(bytesRead/1024).toLocaleString();
+      let total = Math.round(bytesTotal/1024).toLocaleString();
+      let speed = (bytesRead*8 / (performance.now() - startTime)).toLocaleString([], {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      elProgress.innerText = `${Math.round(bytesRead/bytesTotal*100)}% ${read}/${total} Kb`;
+      elSpeed.innerText = `${speed} kbps`;
     }
   }
 

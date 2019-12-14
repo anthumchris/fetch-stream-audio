@@ -12,18 +12,30 @@
     }
     body {
       font-size: 16px;
-      padding: 3em .5em .5em .5em;
+      padding: 2em .5em .5em .5em;
       box-sizing: border-box;
       font-family: sans-serif;
       text-align: center;
-      color: #ccc;
-      background: #07053c;
+      color: #eee;
+      background: #212121;
     }
     main {
       display: inline-block;
       margin: 0 auto;
-      padding: 0;
+      padding: 1em 1em 0;
+      background: #000;
     }
+
+    h2 {
+      font-size: 16px;
+      text-align: left;
+      margin: 0 0em 1em;
+      padding: 0 0em 0.5em;
+      border-bottom: 1px solid #444;
+      color: #757575;
+      font-weight: normal;
+    }
+
     dl {
       font-size: 75%;
       line-height: 1.25em;
@@ -37,17 +49,21 @@
       clear: left;
       width: 11em;
       text-align: left;
+      color: #757575;
     }
     dt:after {
       content: ':';
     }
     dd {
       font-family: monospace;
+      min-width: 12em;
+      text-align: left;
+      color: #00b900;
     }
     #status {
       min-height: 4em;
       margin-top: 0;
-      margin-bottom: 2em;
+      margin-bottom: 0em;
       overflow: visible;
       clear: both;
     }
@@ -86,10 +102,14 @@
 </head>
 <body>
   <main>
+    <h2>WAV File</h2>
     <p id="status"><button class="start" onclick="start()">Start</button></p>
     <dl>
       <dt>Downloaded</dt>
       <dd id="progress"></dd>
+
+      <dt>Download Speed</dt>
+      <dd id="speed"></dd>
 
       <dt>Read Buffer Size</dt>
       <dd id="rbSize"></dd>
