@@ -4,7 +4,7 @@
 function start() {
   AudioStreamPlayer.init();
 
-  // fetch('audio/rock-48000hz-trim.wav') // Localhost testing requires CORS config to obtain Content-Length
+  // fetch('/1.5mbps/house-41000hz-trim.wav') // Localhost testing requires CORS config to obtain Content-Length
   fetch('https://fetch-stream-audio.anthum.com/1.5mbps/house-41000hz-trim.wav')
   .then(response => playResponseAsStream(response, 16*1024))
   .then(_ => console.log('all stream bytes queued for decoding'))
@@ -48,7 +48,8 @@ function playResponseAsStream(response, readBufferSize) {
         bytesRead+= value.byteLength;
 
         requestAnimationFrame(_ => {
-          UI.downloadProgress({startTime, bytesRead, bytesTotal})
+          const elapsed = performance.now() - getDownloadStartTime()
+          UI.downloadProgress({elapsed, bytesRead, bytesTotal})
         })
 
         for (byte of value) {
@@ -63,10 +64,13 @@ function playResponseAsStream(response, readBufferSize) {
     })
   }
 
-  const startTime = performance.now();
+  performance.mark('download-start');
   return read()
 }
 
+function getDownloadStartTime() {
+  return performance.getEntriesByName('download-start')[0].startTime;
+}
 
 // Main controller for playing chunks enqueued for decoding.  
 const AudioStreamPlayer = (function() {
@@ -195,11 +199,11 @@ const UI = (function() {
     elSpeed =       id('speed');
   })
 
-  function downloadProgress({startTime, bytesRead, bytesTotal}) {
+  function downloadProgress({elapsed, bytesRead, bytesTotal}) {
     if (bytesTotal) {
       let read = Math.round(bytesRead/1024).toLocaleString();
       let total = Math.round(bytesTotal/1024).toLocaleString();
-      let speed = (bytesRead*8 / (performance.now() - startTime)).toLocaleString([], {
+      let speed = (bytesRead*8 / (elapsed)).toLocaleString([], {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       });
