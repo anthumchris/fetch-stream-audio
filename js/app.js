@@ -116,7 +116,7 @@ const AudioStreamPlayer = (function() {
   }
 
   function init() {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'playback' });
   }
 
   // arrayBuffer will be inaccessible to caller after performant Transferable postMessage()
@@ -152,8 +152,16 @@ const AudioStreamPlayer = (function() {
     // initialize first play position.  initial clipping/choppiness sometimes occurs and intentional start latency needed
     // read more: https://github.com/WebAudio/web-audio-api/issues/296#issuecomment-257100626
     if (!playStartedAt) {
-      // const startDelay = audioBuffer.duration + (audioCtx.baseLatency || (128 / audioCtx.sampleRate));
-      const startDelay = audioCtx.baseLatency || (128 / audioCtx.sampleRate);
+      /* this clips in Firefox, plays */
+      // const startDelay = audioCtx.baseLatency || (128 / audioCtx.sampleRate);
+
+      /* this doesn't clip in Firefox (256 value), plays */
+      const startDelay = audioCtx.baseLatency || (256 / audioCtx.sampleRate);
+
+      /* this could be useful for firefox but outputLatency is about 250ms in FF. too long */
+      // const startDelay = audioCtx.outputLatency || audioCtx.baseLatency || (128 / audioCtx.sampleRate);
+      console.log({startDelay});
+
       playStartedAt = audioCtx.currentTime + startDelay;
       UI.playing();
       setTimeout(UI.playbackStart, startDelay*1000);
