@@ -4,124 +4,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Streams WAV Decoder</title>
   <script src="js/app.js"></script>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-    }
-    body {
-      font-size: 16px;
-      padding: 2em .5em .5em .5em;
-      box-sizing: border-box;
-      font-family: sans-serif;
-      text-align: center;
-      color: #eee;
-      background: #212121;
-    }
-    main {
-      display: inline-block;
-      margin: 0 auto;
-      padding: 1em 1em 0;
-      background: #000;
-    }
-
-    footer {
-      text-align: center;
-      position: absolute;
-      bottom: 0;
-      width: 100vw;
-      margin: 0;
-      padding: 0;
-    }
-
-    a {
-      color: #4c8bf5;
-      display: inline-block;
-      font-size: .8rem;
-      padding: 2em 1em;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-
-    h2 {
-      font-size: 16px;
-      text-align: left;
-      margin: 0 0em 1em;
-      padding: 0 0em 0.5em;
-      border-bottom: 1px solid #444;
-      color: #757575;
-      font-weight: normal;
-    }
-
-    dl {
-      font-size: 75%;
-      line-height: 1.25em;
-      overflow: auto;
-    }
-    dt, dd {
-      float: left;
-      margin: 0;
-    }
-    dt {
-      clear: left;
-      width: 11em;
-      text-align: left;
-      color: #757575;
-    }
-    dt:after {
-      content: ':';
-    }
-    dd {
-      font-family: monospace;
-      min-width: 12em;
-      text-align: left;
-      color: #00b900;
-    }
-    #status {
-      min-height: 4em;
-      margin-top: 0;
-      margin-bottom: 0em;
-      overflow: visible;
-      clear: both;
-    }
-    button {
-      font-size: 1em;
-      line-height: 30px;
-      display: inline-block;
-      padding: 0;
-      border: 0;
-      cursor: pointer;
-      background: none;
-      color: inherit;
-      text-align: center;
-    }
-    .start {
-      background: #fff;
-      color: #07053c;
-      padding: .25em .5em;
-      border-radius: 5px;
-    }
-    .play, .pause {
-      display: block;
-      width: 30px;
-      height: 30px;
-      vertical-align: middle;
-      line-height: inherit;
-      margin: 0 auto;
-    }
-    .play:before {
-      content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 8 496 496"><path fill="%23fff" d="M371.7 238l-176-107c-15.8-8.8-35.7 2.5-35.7 21v208c0 18.4 19.8 29.8 35.7 21l176-101c16.4-9.1 16.4-32.8 0-42zM504 256C504 119 393 8 256 8S8 119 8 256s111 248 248 248 248-111 248-248zm-448 0c0-110.5 89.5-200 200-200s200 89.5 200 200-89.5 200-200 200S56 366.5 56 256z"/></svg>');
-    }
-    .pause:before {
-      content: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 8 496 496"><path fill="%23fff" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm96-280v160c0 8.8-7.2 16-16 16h-48c-8.8 0-16-7.2-16-16V176c0-8.8 7.2-16 16-16h48c8.8 0 16 7.2 16 16zm-112 0v160c0 8.8-7.2 16-16 16h-48c-8.8 0-16-7.2-16-16V176c0-8.8 7.2-16 16-16h48c8.8 0 16 7.2 16 16z"/></svg>');
-    }
-  </style>
+  <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-  <main>
+  <div class="player">
     <h2>WAV File</h2>
     <p id="status"><button class="start" onclick="start()">Start</button></p>
     <dl>
@@ -146,7 +32,8 @@
       <dt>AudioBuffer Unplayed</dt>
       <dd id="abRemaining"></dd>
     </dl>
-  </main>
+  </div>
+
   <footer>
     <a href="https://github.com/AnthumChris/fetch-stream-audio">View on GitHub</a>
   </footer>
