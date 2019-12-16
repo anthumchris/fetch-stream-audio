@@ -1,0 +1,17 @@
+{
+  "name": "fetch-stream-audio",
+  "private": true,
+  "scripts": {
+    "dev": "parcel src/index.html",
+    "clean-npm": "rm -rf node_modules package-lock.json"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.7.7",
+    "@babel/plugin-transform-runtime": "^7.7.6",
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.7.2"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.7.7"
+  }
+}

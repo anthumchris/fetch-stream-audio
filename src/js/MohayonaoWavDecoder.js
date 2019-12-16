@@ -1,12 +1,10 @@
-'use strict'
-
 /* MohayonaoWavDecoder
  * 
  * Restructured from https://github.com/mohayonao/wav-decoder to allow for
  * recurring calls to decode() for decoding chunks instead of complete
  * files.  ES6 syntax also introduced in some places.
  */
-function MohayonaoWavDecoder(opts) {
+export default function MohayonaoWavDecoder(opts) {
   this.readerMeta = false;
   this.opts = opts || {};
 }
