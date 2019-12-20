@@ -32,7 +32,7 @@ export class AudioStreamPlayer {
     .catch(e => {
       this._updateState({ error: e.toString() });
     })
-    this._updateState({ playState: 'playing'});
+    this.resume();
   }
 
   pause() {
