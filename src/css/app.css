@@ -21,7 +21,7 @@ body {
   flex-direction: column;
 }
 main {
-  text-align: left;
+  text-align: center;
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
