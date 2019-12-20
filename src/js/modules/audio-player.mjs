@@ -46,7 +46,8 @@ export class AudioPlayer {
       dlRate: null,
       abCreated: null,
       abEnded: null,
-      abRemaining: null
+      abRemaining: null,
+      error: null
     });
   }
 

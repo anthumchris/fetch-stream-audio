@@ -30,10 +30,10 @@ export class BufferedStreamReader {
 
     return this._start()
     .catch(e => {
-      console.error(e);
       if (this.abortController) {
         this.abortController.abort();
       }
+      throw e;
     })
     .finally(_ => this.isRunning = false);
   }

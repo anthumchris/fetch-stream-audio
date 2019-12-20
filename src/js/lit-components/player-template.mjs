@@ -3,7 +3,8 @@ import { html } from 'lit-html';
 const decimals = 3;
 
 function bytesFormatted(val) {
-  return Math.round(val/1024).toLocaleString();
+  const kb = val/1024;
+  return kb < 0.5? kb.toFixed(2) : Math.round(kb).toLocaleString();
 }
 
 function decimal(val) {
@@ -14,7 +15,7 @@ export default ({
   playState, mime, waiting,
   bytesRead, bytesTotal, readBuffer, dlRate,
   abCreated, abEnded, abRemaining,
-  onClick
+  onClick, error
 }) => html`
   <div class="player">
     <h2>
@@ -25,6 +26,7 @@ export default ({
         <button ?hidden=${playState !== 'paused'}  @click=${onClick} data-action="resume" class="play">Paused</button>
       <span>
     </h2>
+    <div class="error">${error? html`${error}` : null}</div>
     <dl>
       <dt>Playback Waiting</dt>
       <dd>${waiting

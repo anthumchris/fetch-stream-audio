@@ -11,8 +11,9 @@ export class AudioStreamPlayer {
   _abEnded = 0;              // AudioBuffers played/ended
 
   constructor(url, readBufferSize) {
-    // TODO errors should be signaled to caller
-    this._worker.onerror = event => {};
+    this._worker.onerror = event => {
+      this._updateState({ error: event.message });
+    };
     this._worker.onmessage = this._onWorkerMessage.bind(this);
 
     // pause for now
@@ -27,7 +28,10 @@ export class AudioStreamPlayer {
 
   start() {
     performance.mark('download-start');
-    this._reader.read();
+    this._reader.read()
+    .catch(e => {
+      this._updateState({ error: e.toString() });
+    })
     this._updateState({ playState: 'playing'});
   }
 
@@ -39,12 +43,12 @@ export class AudioStreamPlayer {
   }
 
   _updateState(props) {
-    const state = Object.assign({
+    const abState = !this._abCreated? {} : {
       abCreated: this._abCreated,
       abEnded: this._abEnded,
       abRemaining: this._abCreated - this._abEnded,
-
-    }, props);
+    }
+    const state = Object.assign(abState, props);
     if (this.onUpdateState) {
       this.onUpdateState(state);
     }
