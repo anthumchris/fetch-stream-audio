@@ -2,16 +2,17 @@ import { AudioStreamPlayer } from './audio-stream-player.mjs';
 import { Player } from '../lit-components/player.mjs';
 
 export class AudioPlayer {
-  ui;
-  audio;
+  _ui;
+  _audio;
+  _readSize;
 
   constructor({ url, wrapper, readBufferSize }) {
-    this.ui = new Player(wrapper);
-    this.ui.onAction = this._onAction.bind(this);
-    this.ui.state.readBuffer = readBufferSize;
+    this._readSize = readBufferSize
+    this._ui = new Player(wrapper);
+    this._ui.onAction = this._onAction.bind(this);
 
-    this.audio = new AudioStreamPlayer(url, readBufferSize);
-    this.audio.onUpdateState = this._onUpdateState.bind(this);
+    this._audio = new AudioStreamPlayer(url, readBufferSize);
+    this._audio.onUpdateState = this._onUpdateState.bind(this);
 
     this.reset();
   }
@@ -23,21 +24,22 @@ export class AudioPlayer {
   }
 
   _onUpdateState(state) {
-    this.ui.setState(state);
+    this._ui.setState(state);
   }
 
   start() {
-    this.audio.start();
+    this._audio.start();
+    this._ui.state.readBuffer = this._readSize;
   }
   pause() {
-    this.audio.pause();
+    this._audio.pause();
   }
   resume() {
-    this.audio.resume();
+    this._audio.resume();
   }
 
   reset() {
-    this.ui.setState({
+    this._ui.setState({
       playState: 'init',
       mime: 'audio/wav',
       waiting: null,

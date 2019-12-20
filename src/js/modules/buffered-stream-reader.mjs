@@ -62,8 +62,8 @@ export class BufferedStreamReader {
       }
 
       // avoid blocking read()
-      // setTimeout(_ => this._readIntoBuffer({ value, done }));
-      this._readIntoBuffer({ value, done });
+      setTimeout(_ => this._readIntoBuffer({ value, done }));
+      // this._readIntoBuffer({ value, done });
 
       if (!done) {
         return read();

@@ -26,8 +26,7 @@ main {
   flex-wrap: wrap;
   flex-direction: column;
   flex: 1;
-  padding: .5rem;
-
+  padding: 2rem .5rem .5rem;
   /*justify-content: space-between;*/
 }
 
