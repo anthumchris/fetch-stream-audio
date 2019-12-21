@@ -1,5 +1,6 @@
 :root {
   --blue: #4285f4;
+  --green: #00e000;
   --button-line-height: 44px;
   --page-bg-color: #212121;
   /*--page-bg-color: #fafafa;*/
@@ -65,6 +66,11 @@ h2 {
   padding: 0;
   color: #757575;
   font-weight: normal;
+  line-height: 1.25em;
+}
+h2 span {
+  color: #ccc;
+  font-size: .8em;
 }
 
 footer {
@@ -109,7 +115,7 @@ dd {
   font-family: monospace;
   min-width: 12em;
   text-align: left;
-  color: #00e000;
+  color: var(--green);
 }
 
 button {
@@ -133,8 +139,8 @@ button.none {
   padding: 1em;
   color: var(--blue);
   font-size: 0.8rem;
-  min-height: none;
-  min-width: none;
+  min-height: auto;
+  min-width: auto;
 }
 button:hover {
   text-decoration: underline;

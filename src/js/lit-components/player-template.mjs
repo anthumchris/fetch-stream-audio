@@ -12,7 +12,7 @@ function decimal(val) {
 }
 
 export default ({ 
-  playState, mime, waiting,
+  playState, mime, codec, waiting,
   bytesRead, bytesTotal, readBuffer, dlRate,
   abCreated, abEnded, abRemaining,
   onClick, error
@@ -30,6 +30,7 @@ export default ({
       <div class="center">
         <h2>
           ${mime}
+          ${codec? html`<br><span>${codec}</span>` : null}
         </h2>
       </div>
     </div>

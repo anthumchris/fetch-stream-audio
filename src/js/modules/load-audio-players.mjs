@@ -1,16 +1,25 @@
 import { AudioPlayer } from './audio-player.mjs';
 
-export default (wrapper) => {
-  // Trials showed 16K to be good. Lower values (2K) caused skipping in WAV
-  const readBufferSize = 1024 * 16;
-
-  const el = document.createElement('section');
-  const player = new AudioPlayer({
+const playerData = [
+  {
     // url: 'https://fetch-stream-audio.local.com/1.5mbps/bubbles.wav',
     // url: 'https://fetch-stream-audio.local.com/2mbps/house-41000hz-trim.local.wav',
     url: 'https://fetch-stream-audio.anthum.com/2mbps/house-41000hz-trim.wav',
-    wrapper: el,
-    readBufferSize
+    mime: 'audio/wav',
+    codec: 'PCM',
+
+    // WAV trials showed 16K to be good. Lower values (2K) caused skipping
+    readBufferSize: 1024 * 16
+  },
+];
+
+export default (wrapper) => {
+  playerData.forEach(({ url, mime, codec, readBufferSize }) => {
+    const el = document.createElement('section');
+    const player = new AudioPlayer({
+      wrapper: el,
+      url, mime, codec, readBufferSize
+    });
+    wrapper.append(el);
   });
-  wrapper.append(el);
 };
