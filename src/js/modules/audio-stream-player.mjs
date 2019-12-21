@@ -31,7 +31,9 @@ export class AudioStreamPlayer {
   }
 
   _reset() {
-    performance.clearMarks('download-start');
+    if (this._sessionId) {
+      performance.clearMarks(this._downloadMarkKey);
+    }
 
     this._sessionId = null;
     this._audioCtx = null;
@@ -52,7 +54,7 @@ export class AudioStreamPlayer {
       this._reader.abort();
     }
     if (this._audioCtx) {
-      this._audioCtx.suspend()
+      this._audioCtx.suspend();
       this._audioCtx.close();
     }
 
@@ -60,8 +62,8 @@ export class AudioStreamPlayer {
   }
 
   start() {
-    performance.mark('download-start');
     this._sessionId = performance.now();
+    performance.mark(this._downloadMarkKey);
     this._audioCtx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'playback' });
     const reader = new BufferedStreamReader(new Request(this._url), this._readBufferSize);
     reader.onRead = this._downloadProgress.bind(this);
@@ -70,7 +72,7 @@ export class AudioStreamPlayer {
     reader.read()
     .catch(e => {
       this._updateState({ error: e.toString() });
-    })
+    });
 
     this._reader = reader;
     this.resume();
@@ -88,7 +90,7 @@ export class AudioStreamPlayer {
       abCreated: this._abCreated,
       abEnded: this._abEnded,
       abRemaining: this._abCreated - this._abEnded,
-    }
+    };
     const state = Object.assign(abState, props);
     if (this.onUpdateState) {
       this.onUpdateState(state);
@@ -122,8 +124,11 @@ export class AudioStreamPlayer {
     // console.log(done, (totalRead/totalBytes*100).toFixed(2) );
   }
 
+  get _downloadMarkKey() {
+    return `download-start-${this._sessionId}`;
+  }
   _getDownloadStartTime() {
-    return performance.getEntriesByName('download-start')[0].startTime;
+    return performance.getEntriesByName(this._downloadMarkKey)[0].startTime;
   }
 
   _schedulePlayback({channelData, length, numberOfChannels, sampleRate}) {
