@@ -15,7 +15,7 @@ export class BufferedStreamReader {
   abortController;
 
   constructor(request, readBufferSize) {
-    if (!readBufferSize)
+    if (!(parseInt(readBufferSize) > 0))
       throw Error('readBufferSize not provided');
 
     this.request = request;

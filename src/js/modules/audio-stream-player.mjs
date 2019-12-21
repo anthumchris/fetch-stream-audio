@@ -1,9 +1,12 @@
 import { BufferedStreamReader } from './buffered-stream-reader.mjs';
 
 export class AudioStreamPlayer {
+  // these shouldn't change once set
   _worker = new Worker('../worker-decoder.js');
   _url;
+  _readBufferSize
 
+  // these are reset
   _sessionId             // used to prevent race conditions between cancel/starts
   _audioCtx;             // Created/Closed when this player starts/stops audio
   _reader;
@@ -23,6 +26,7 @@ export class AudioStreamPlayer {
     // this._audioCtx.suspend().then(_ => console.log('audio paused'));
 
     this._url = url;
+    this._readBufferSize = readBufferSize;
     this._reset();
   }
 
@@ -59,7 +63,7 @@ export class AudioStreamPlayer {
     performance.mark('download-start');
     this._sessionId = performance.now();
     this._audioCtx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'playback' });
-    const reader = new BufferedStreamReader(new Request(this._url), 1024 * 4);
+    const reader = new BufferedStreamReader(new Request(this._url), this._readBufferSize);
     reader.onRead = this._downloadProgress.bind(this);
     reader.onBufferFull = this._decode.bind(this);
 
