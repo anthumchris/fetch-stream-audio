@@ -18,14 +18,21 @@ export default ({
   onClick, error
 }) => html`
   <div class="player">
-    <h2>
-      ${mime}
-      <span id="status">
-        <button ?hidden=${playState !== 'init'}    @click=${onClick} data-action="start"  class="start">Start</button>
-        <button ?hidden=${playState !== 'playing'} @click=${onClick} data-action="pause"  class="pause">Playing</button>
-        <button ?hidden=${playState !== 'paused'}  @click=${onClick} data-action="resume" class="play">Paused</button>
-      <span>
-    </h2>
+    <div class="header">
+      <div>
+        <span class="status">
+          <button ?hidden=${playState !== 'init'}    @click=${onClick} data-action="start"  class="start">Start</button>
+          <button ?hidden=${playState !== 'playing'} @click=${onClick} data-action="pause"  class="pause">Playing</button>
+          <button ?hidden=${playState !== 'paused'}  @click=${onClick} data-action="resume" class="play">Paused</button>
+        </span>
+      </div>
+      <div ?hidden=${playState === 'init'} class="center"><button class="none" @click=${onClick} data-action="reset">Reset</button></div>
+      <div class="center">
+        <h2>
+          ${mime}
+        </h2>
+      </div>
+    </div>
     <div class="error">${error? html`${error}` : null}</div>
     <dl>
       <dt>Playback Waiting</dt>

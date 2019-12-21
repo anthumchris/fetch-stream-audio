@@ -43,6 +43,29 @@ main {
   width: 18rem;
   text-align: left;
 }
+.player .header {
+  margin: 0 0 1rem;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: none;
+  justify-content: space-between;
+}
+.player .status {
+  vertical-align: bottom;
+}
+.player .header a {
+  display: block;
+  padding: 0.5rem;
+}
+
+h2 {
+  font-size: 16px;
+  text-align: right;
+  margin: 0;
+  padding: 0;
+  color: #757575;
+  font-weight: normal;
+}
 
 footer {
   text-align: center;
@@ -50,27 +73,18 @@ footer {
   margin: 0;
   padding: 0;
 }
+footer a {
+  font-size: .8rem;
+  padding: 2em 1em;
+}
 
 a {
   color: var(--blue);
   display: inline-block;
-  font-size: .8rem;
-  padding: 2em 1em;
   text-decoration: none;
 }
 a:hover {
   text-decoration: underline;
-}
-
-h2 {
-  font-size: 16px;
-  text-align: right;
-  margin: 0 0em 1rem;
-  padding: 0 0 0;
-  color: #757575;
-  font-weight: normal;
-  overflow: hidden;
-  line-height: var(--button-line-height);
 }
 
 dl {
@@ -97,12 +111,7 @@ dd {
   text-align: left;
   color: #00e000;
 }
-#status {
-  overflow: visible;
-  display: inline-block;
-  vertical-align: bottom;
-  float: left;
-}
+
 button {
   font-size: 1em;
   line-height: var(--button-line-height);
@@ -118,10 +127,24 @@ button {
   background: none;
   outline: none;
 }
-
-button:focus {
+button.none {
+  line-height: 0em;
+  margin: 0;
+  padding: 1em;
+  color: var(--blue);
+  font-size: 0.8rem;
+  min-height: none;
+  min-width: none;
+}
+button:hover {
+  text-decoration: underline;
 }
 
+.center {
+  text-align: center;
+  display: flex;
+  align-items: center;
+}
 .error {
   color: #f00;
   font-size: 14px;
