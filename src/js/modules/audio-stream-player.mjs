@@ -9,6 +9,8 @@ export class AudioStreamPlayer {
   _playStartedAt = 0;        // audioContext.currentTime of first sched
   _abCreated = 0;            // AudioBuffers created
   _abEnded = 0;              // AudioBuffers played/ended
+  _url;
+  _reader;
 
   constructor(url, readBufferSize) {
     this._worker.onerror = event => {
@@ -19,19 +21,22 @@ export class AudioStreamPlayer {
     // pause for now
     // this._audioCtx.suspend().then(_ => console.log('audio paused'));
 
-    const reader = new BufferedStreamReader(new Request(url), 1024 * 4);
-    reader.onRead = this._downloadProgress.bind(this);
-    reader.onBufferFull = this._decode.bind(this);
-
-    this._reader = reader;
+    this._url = url;
   }
 
   start() {
     performance.mark('download-start');
-    this._reader.read()
+
+    const reader = new BufferedStreamReader(new Request(this._url), 1024 * 4);
+    reader.onRead = this._downloadProgress.bind(this);
+    reader.onBufferFull = this._decode.bind(this);
+
+    reader.read()
     .catch(e => {
       this._updateState({ error: e.toString() });
     })
+
+    this._reader = reader;
     this.resume();
   }
 

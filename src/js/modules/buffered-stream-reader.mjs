@@ -12,6 +12,7 @@ export class BufferedStreamReader {
   buffer;        // buffer we're filling
   bufferPos = 0; // last filled position in buffer
   isRunning;
+  abortController;
 
   constructor(request, readBufferSize) {
     if (!readBufferSize)
@@ -19,6 +20,13 @@ export class BufferedStreamReader {
 
     this.request = request;
     this.buffer = new Uint8Array(readBufferSize);
+  }
+
+  abort() {
+    if (this.abortController) {
+      this.abortController.abort();
+    }
+    this.request = null;
   }
 
   async read() {
@@ -30,9 +38,10 @@ export class BufferedStreamReader {
 
     return this._start()
     .catch(e => {
-      if (this.abortController) {
-        this.abortController.abort();
+      if (e.name === 'AbortError') {
+        return;
       }
+      this.abort();
       throw e;
     })
     .finally(_ => this.isRunning = false);
@@ -62,7 +71,8 @@ export class BufferedStreamReader {
       }
 
       // avoid blocking read()
-      setTimeout(_ => this._readIntoBuffer({ value, done }));
+      setTimeout(_ => this._readIntoBuffer({ value, done, request: this.request }));
+      // console.log(this.request);
       // this._readIntoBuffer({ value, done });
 
       if (!done) {
@@ -73,14 +83,26 @@ export class BufferedStreamReader {
     return read();
   }
 
-  _flushBuffer({ end, done }) {
+  _requestIsAborted({ request }) {
+    return this.request !== request;
+  }
+
+  _flushBuffer({ end, done, request }) {
+    if (this._requestIsAborted({ request })) {
+      return
+    }
+
     this.onBufferFull({ bytes: this.buffer.slice(0, end), done });
   }
 
   /* read value into buffer and call onBufferFull when reached */
-  _readIntoBuffer ({ value, done }) {
+  _readIntoBuffer ({ value, done, request }) {
+    if (this._requestIsAborted({ request })) {
+      return
+    }
+
     if (done) {
-      this._flushBuffer({ end: this.bufferPos, done });
+      this._flushBuffer({ end: this.bufferPos, done, request });
       return;
     }
 
@@ -98,7 +120,7 @@ export class BufferedStreamReader {
       bufferPos += len;
       if (bufferPos === bufferLen) {
         bufferPos = 0;
-        this._flushBuffer({ end: Infinity, done });
+        this._flushBuffer({ end: Infinity, done, request });
       }
     }
 
