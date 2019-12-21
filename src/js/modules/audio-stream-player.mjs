@@ -2,15 +2,16 @@ import { BufferedStreamReader } from './buffered-stream-reader.mjs';
 
 export class AudioStreamPlayer {
   _worker = new Worker('../worker-decoder.js');
-  _audioCtx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'playback' });
-
-  _audioSrcNodes = []; // Used to fix Safari Bug https://github.com/AnthumChris/fetch-stream-audio/issues/1
-  _totalTimeScheduled = 0;   // time scheduled of all AudioBuffers
-  _playStartedAt = 0;        // audioContext.currentTime of first sched
-  _abCreated = 0;            // AudioBuffers created
-  _abEnded = 0;              // AudioBuffers played/ended
   _url;
+
+  _sessionId             // used to prevent race conditions between cancel/starts
+  _audioCtx;             // Created/Closed when this player starts/stops audio
   _reader;
+  _audioSrcNodes         // Used to fix Safari Bug https://github.com/AnthumChris/fetch-stream-audio/issues/1
+  _totalTimeScheduled    // time scheduled of all AudioBuffers
+  _playStartedAt         // audioContext.currentTime of first sched
+  _abCreated;            // AudioBuffers created
+  _abEnded;              // AudioBuffers played/ended
 
   constructor(url, readBufferSize) {
     this._worker.onerror = event => {
@@ -22,11 +23,42 @@ export class AudioStreamPlayer {
     // this._audioCtx.suspend().then(_ => console.log('audio paused'));
 
     this._url = url;
+    this._reset();
+  }
+
+  _reset() {
+    performance.clearMarks('download-start');
+
+    this._sessionId = null;
+    this._audioCtx = null;
+    this._reader = null;
+    this._audioSrcNodes = [];
+    this._totalTimeScheduled = 0;
+    this._playStartedAt = 0;
+    this._abCreated = 0;
+    this._abEnded = 0;
+  }
+
+  close() {
+    for (let node of this._audioSrcNodes) {
+      node.disconnect(this._audioCtx.destination);
+      node.stop();
+    }
+    if (this._reader) {
+      this._reader.abort();
+    }
+    if (this._audioCtx) {
+      this._audioCtx.suspend()
+      this._audioCtx.close();
+    }
+
+    this._reset();
   }
 
   start() {
     performance.mark('download-start');
-
+    this._sessionId = performance.now();
+    this._audioCtx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'playback' });
     const reader = new BufferedStreamReader(new Request(this._url), 1024 * 4);
     reader.onRead = this._downloadProgress.bind(this);
     reader.onBufferFull = this._decode.bind(this);
@@ -60,12 +92,19 @@ export class AudioStreamPlayer {
   }
 
   _decode({ bytes, done }) {
-    this._worker.postMessage({ decode: bytes.buffer }, [bytes.buffer]);
+    const sessionId = this._sessionId;
+    this._worker.postMessage({ decode: bytes.buffer, sessionId }, [bytes.buffer]);
   }
 
+  // prevent race condition by checking sessionId
   _onWorkerMessage(event) {
-    if (event.data.channelData) {
-      const decoded = event.data;
+    const {decoded, sessionId} = event.data;
+    if (decoded.channelData) {
+      if (!(this._sessionId && this._sessionId === sessionId)) {
+        console.log("race condition detected for closed session");
+        return;
+      }
+
       this._schedulePlayback(decoded);
     }
   }
@@ -95,10 +134,8 @@ export class AudioStreamPlayer {
     this._abCreated++;
     this._updateState();
 
-    // ensures onended callback is fired in Safari
-    if (window.webkitAudioContext) {
-      this._audioSrcNodes.push(audioSrc);
-    }
+    // adding also ensures onended callback is fired in Safari
+    this._audioSrcNodes.push(audioSrc);
 
     // Use performant copyToChannel() if browser supports it
     for (let c=0; c<numberOfChannels; c++) {

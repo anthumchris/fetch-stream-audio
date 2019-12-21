@@ -39,6 +39,7 @@ export class AudioPlayer {
   }
 
   reset() {
+    this._audio.close();
     this._ui.setState({
       playState: 'init',
       mime: 'audio/wav',
@@ -49,7 +50,8 @@ export class AudioPlayer {
       abCreated: null,
       abEnded: null,
       abRemaining: null,
-      error: null
+      error: null,
+      readBuffer: null
     });
   }
 

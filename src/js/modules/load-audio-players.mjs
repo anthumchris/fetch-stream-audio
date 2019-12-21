@@ -7,9 +7,8 @@ export default (wrapper) => {
   const el = document.createElement('section');
   const player = new AudioPlayer({
     // url: 'https://fetch-stream-audio.local.com/1.5mbps/bubbles.wav',
-    // url: 'https://fetch-stream-audio.local.com/1.5mbps/house-41000hz-trim.wav',
+    // url: 'https://fetch-stream-audio.local.com/2mbps/house-41000hz-trim.local.wav',
     url: 'https://fetch-stream-audio.anthum.com/2mbps/house-41000hz-trim.wav',
-    // url: '/2mbps/house-41000hz-trim.wav',
     wrapper: el,
     readBufferSize
   });
