@@ -166,7 +166,7 @@ button:hover {
 .play:before {
   display: block;
   float: left;
-  margin-right: 1em;
+  margin-right: .5rem;
   height: var(--button-line-height);
   width: var(--button-line-height);
 }
