@@ -11,7 +11,4 @@ cd dist
 ln -fs ../audio audio
 cd ..
 
-parcel build \
-  --experimental-scope-hoisting \
-  --no-autoinstall \
-  src/index.html
+parcel --no-autoinstall src/index.html
