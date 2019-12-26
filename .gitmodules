@@ -1,0 +1,3 @@
+[submodule "src/js/opus-stream-decoder"]
+	path = src/js/opus-stream-decoder
+	url = https://github.com/AnthumChris/opus-stream-decoder.git

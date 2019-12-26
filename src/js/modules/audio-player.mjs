@@ -12,8 +12,7 @@ export class AudioPlayer {
     this._readSize = readBufferSize;
     this._ui = new Player(wrapper);
     this._ui.onAction = this._onAction.bind(this);
-
-    this._audio = new AudioStreamPlayer(url, readBufferSize);
+    this._audio = new AudioStreamPlayer(url, readBufferSize, codec.toUpperCase());
     this._audio.onUpdateState = this._onUpdateState.bind(this);
 
     this._mime = mime;

@@ -2,7 +2,7 @@ import { BufferedStreamReader } from './buffered-stream-reader.mjs';
 
 export class AudioStreamPlayer {
   // these shouldn't change once set
-  _worker = new Worker('../worker-decoder.js');
+  _worker;
   _url;
   _readBufferSize
 
@@ -16,7 +16,13 @@ export class AudioStreamPlayer {
   _abCreated;            // AudioBuffers created
   _abEnded;              // AudioBuffers played/ended
 
-  constructor(url, readBufferSize) {
+  constructor(url, readBufferSize, decoderName) {
+    switch (decoderName) {
+      case 'PCM': this._worker =  new Worker('../worker-decoder-wav.js'); break;
+      case 'OPUS': this._worker = new Worker('../worker-decoder-opus.js'); break;
+      default: throw Error('Unsupported decoderName', decoderName);
+    }
+
     this._worker.onerror = event => {
       this._updateState({ error: event.message });
     };
@@ -64,7 +70,7 @@ export class AudioStreamPlayer {
   start() {
     this._sessionId = performance.now();
     performance.mark(this._downloadMarkKey);
-    this._audioCtx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'playback' });
+    this._audioCtx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: 'interactive' });
     const reader = new BufferedStreamReader(new Request(this._url), this._readBufferSize);
     reader.onRead = this._downloadProgress.bind(this);
     reader.onBufferFull = this._decode.bind(this);
@@ -133,7 +139,7 @@ export class AudioStreamPlayer {
 
   _schedulePlayback({channelData, length, numberOfChannels, sampleRate}) {
     const audioSrc = this._audioCtx.createBufferSource(),
-          audioBuffer = this._audioCtx.createBuffer(numberOfChannels,length, sampleRate);
+          audioBuffer = this._audioCtx.createBuffer(numberOfChannels, length, sampleRate);
 
     audioSrc.onended = () => {
       this._audioSrcNodes.shift();
