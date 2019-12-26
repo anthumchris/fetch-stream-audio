@@ -4,3 +4,4 @@
 .cache
 node_modules
 yarn-error.log
+.parcel-cache/
