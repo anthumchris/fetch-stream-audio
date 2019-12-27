@@ -36,6 +36,10 @@ export class AudioPlayer {
 
   start() {
     this._audio.start();
+    this._ui.setState({
+      readBuffer: this._readSize,
+      decoder: this._decoder
+    });
     this._onStateChange('started');
     this._onStateChange('playing');
   }
@@ -62,8 +66,8 @@ export class AudioPlayer {
       abEnded: null,
       abRemaining: null,
       error: null,
-      readBuffer: this._readSize,
-      decoder: this._decoder
+      readBuffer: null,
+      decoder: null
     });
     this._onStateChange('reset');
   }
