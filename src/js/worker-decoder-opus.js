@@ -1,9 +1,21 @@
 import wasm from './opus-stream-decoder/dist/opus-stream-decoder.cjs.js';
 
-let decoder, sessionId;
+let sessionId;
 
-// currently, WebAssembly decoder must be re-instantiated and can't be reused.
-// See https://github.com/AnthumChris/opus-stream-decoder/issues/7
+// Set temporary decoder.ready that will replaced with OpusStreamDecoder.ready
+// when WASM loads. Currently required for CJS module-based loading.
+let decoder = {
+  ready: new Promise(resolve => {
+    wasm({
+      onRuntimeInitialized() {
+        decoder = new this.OpusStreamDecoder({ onDecode });
+        console.log('WASM decoder ready');
+        resolve();
+      }
+    });
+  })
+};
+
 function evalSessionId(newSessionId) {
   // detect new session and reset decoder
   if (sessionId && sessionId === newSessionId) {
@@ -11,20 +23,6 @@ function evalSessionId(newSessionId) {
   }
 
   sessionId = newSessionId;
-
-  // Set temporary decoder.ready that will replaced with OpusStreamDecoder.ready
-  // when WASM loads. Currently required for CJS module-based loading.
-  decoder = {
-    ready: new Promise(resolve => {
-      wasm({
-        onRuntimeInitialized() {
-          decoder = new this.OpusStreamDecoder({ onDecode });
-          console.log('WASM decoder ready');
-          resolve();
-        }
-      });
-    })
-  };
 }
 
 self.onmessage = async (evt) => {
@@ -34,6 +32,12 @@ self.onmessage = async (evt) => {
 };
 
 function onDecode({left, right, samplesDecoded, sampleRate}) {
+  // Decoder recovers when it receives new files, and samplesDecoded is negative.
+  // For cause, see https://github.com/AnthumChris/opus-stream-decoder/issues/7
+  if (samplesDecoded < 0) {
+    return;
+  }
+
   const decoded = {
     channelData: [left, right],
     length: samplesDecoded,
