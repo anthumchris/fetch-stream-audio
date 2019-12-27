@@ -1,6 +1,7 @@
 :root {
   --blue: #4285f4;
   --green: #00e000;
+  --whiteish: #ccc;
   --button-line-height: 44px;
   --page-bg-color: #212121;
   /*--page-bg-color: #fafafa;*/
@@ -15,21 +16,25 @@ body {
   font-size: 16px;
   box-sizing: border-box;
   font-family: sans-serif;
-  text-align: center;
-  color: #eee;
+  text-align: left;
+  color: #adadad;
   background: var(--page-bg-color);
   display: flex;
   flex-direction: column;
 }
+header {
+  padding: 2rem 1rem 0;
+  max-width: 50rem;
+  margin: 0 auto;
+}
 main {
-  text-align: center;
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
   justify-content: center;
   margin: 0 auto;
   flex: 1;
-  padding: 2rem 0 0;
+  padding: 1rem 0 0;
 }
 
 [hidden] {
@@ -59,6 +64,12 @@ main {
   padding: 0.5rem;
 }
 
+h1 {
+  font-size: 1.25rem;
+  /*font-weight: normal;*/
+  margin: 0 0 1rem;
+}
+
 h2 {
   font-size: 16px;
   text-align: right;
@@ -69,7 +80,7 @@ h2 {
   line-height: 1.25em;
 }
 h2 span {
-  color: #ccc;
+  color: var(--whiteish);
   font-size: .8em;
 }
 
@@ -118,7 +129,7 @@ dd {
   color: var(--green);
 }
 dd.static {
-  color: #ccc;
+  color: var(--whiteish);
 }
 
 button {
