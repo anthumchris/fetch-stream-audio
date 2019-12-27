@@ -7,8 +7,9 @@ export class AudioPlayer {
   _readSize;
   _mime;
   _codec;
+  _decoder
 
-  constructor({ url, wrapper, readBufferSize, mime, codec, onStateChange }) {
+  constructor({ url, wrapper, readBufferSize, mime, codec, onStateChange, decoder }) {
     this._readSize = readBufferSize;
     this._ui = new Player(wrapper);
     this._ui.onAction = this._onAction.bind(this);
@@ -18,6 +19,7 @@ export class AudioPlayer {
     this._mime = mime;
     this._codec = codec;
     this._onStateChange = onStateChange;
+    this._decoder = decoder;
 
     this.reset();
   }
@@ -34,7 +36,6 @@ export class AudioPlayer {
 
   start() {
     this._audio.start();
-    this._ui.state.readBuffer = this._readSize;
     this._onStateChange('started');
     this._onStateChange('playing');
   }
@@ -61,7 +62,8 @@ export class AudioPlayer {
       abEnded: null,
       abRemaining: null,
       error: null,
-      readBuffer: null
+      readBuffer: this._readSize,
+      decoder: this._decoder
     });
     this._onStateChange('reset');
   }
