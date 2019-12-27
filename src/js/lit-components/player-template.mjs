@@ -36,16 +36,6 @@ export default ({
     </div>
     <div class="error">${error? html`${error}` : null}</div>
     <dl>
-      <dt>Decoder</dt>
-      <dd class="static">${decoder}</dd>
-
-      <dt>Read / Decode Buffer</dt>
-      <dd class="static">${readBuffer
-            ? html`${readBuffer.toLocaleString()} (${bytesFormatted(readBuffer)}K)`
-            : null
-          }</dd>
-    </dl>
-    <dl>
       <dt>Playback Waiting</dt>
       <dd>${waiting
             ? html`${decimal(waiting)} ms`
@@ -74,6 +64,16 @@ export default ({
       <dt>AudioBuffer Unplayed</dt>
       <dd>${abRemaining !== null ? abRemaining.toLocaleString() : null}</dd>
 
+    </dl>
+    <dl>
+      <dt>Decoder</dt>
+      <dd class="static">${decoder}</dd>
+
+      <dt>Read / Decode Buffer</dt>
+      <dd class="static">${readBuffer
+            ? html`${readBuffer.toLocaleString()} (${bytesFormatted(readBuffer)}K)`
+            : null
+          }</dd>
     </dl>
   </div>
 `;
