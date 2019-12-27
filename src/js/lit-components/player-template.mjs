@@ -15,7 +15,7 @@ export default ({
   playState, mime, codec, waiting,
   bytesRead, bytesTotal, readBuffer, dlRate,
   abCreated, abEnded, abRemaining,
-  onClick, error
+  onClick, error, decoder
 }) => html`
   <div class="player">
     <div class="header">
@@ -35,6 +35,16 @@ export default ({
       </div>
     </div>
     <div class="error">${error? html`${error}` : null}</div>
+    <dl>
+      <dt>Decoder</dt>
+      <dd class="static">${decoder}</dd>
+
+      <dt>Read / Decode Buffer</dt>
+      <dd class="static">${readBuffer
+            ? html`${readBuffer.toLocaleString()} (${bytesFormatted(readBuffer)}K)`
+            : null
+          }</dd>
+    </dl>
     <dl>
       <dt>Playback Waiting</dt>
       <dd>${waiting
@@ -64,11 +74,6 @@ export default ({
       <dt>AudioBuffer Unplayed</dt>
       <dd>${abRemaining !== null ? abRemaining.toLocaleString() : null}</dd>
 
-      <dt>Read / Decode Buffer</dt>
-      <dd>${readBuffer
-            ? html`${readBuffer.toLocaleString()} (${bytesFormatted(readBuffer)}K)`
-            : null
-          }</dd>
     </dl>
   </div>
 `;

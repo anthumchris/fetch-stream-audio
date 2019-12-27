@@ -117,6 +117,9 @@ dd {
   text-align: left;
   color: var(--green);
 }
+dd.static {
+  color: #ccc;
+}
 
 button {
   font-size: 1em;
