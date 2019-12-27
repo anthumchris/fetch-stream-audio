@@ -25,10 +25,11 @@ main {
   text-align: center;
   display: flex;
   flex-wrap: wrap;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: center;
+  margin: 0 auto;
   flex: 1;
-  padding: 2rem .5rem .5rem;
-  /*justify-content: space-between;*/
+  padding: 2rem 0 0;
 }
 
 [hidden] {
@@ -37,9 +38,8 @@ main {
 
 .player {
   display: inline-block;
-  margin: 0 auto 1rem;
-  margin-right: 1rem;
-  padding: 1em 1em 0;
+  margin: 0 1rem 2rem;
+  padding: 1rem 1rem 0;
   background: #000;
   width: 18rem;
   text-align: left;
