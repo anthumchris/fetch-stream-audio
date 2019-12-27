@@ -8,12 +8,12 @@ https://fetch-stream-audio.anthum.com/
 
 # Background
 
-This repo is **incomplete/in-progress** and will provide examples for programatically decoding audio in chunks with the new Fetch &amp; Streams APIs.  Traditionally, [`decodeAudioData()`](https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/decodeAudioData) is used for programmatic decoding but requires the complete file to be downloaded, and chunk-based decoding is not supported.  These Streams examples will show how to sidestep that limitation until the new Web Audio API version is released.
+This repo provides Web Audio API examples for programatically decoding audio in chunks with the new Fetch &amp; Streams APIs.  Traditionally, [`decodeAudioData()`](https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/decodeAudioData) is used for programmatic decoding but requires the complete file to be downloaded, and chunk-based decoding is not supported.  These Streams examples will show how to sidestep that limitation.  Media Source Extensions could also be used to play audio and that example may be integrated here one day.
 
-Development will occur in the following phases:
+The examples demonstrate:
 
-1. **WAV Streaming** &nbsp; ✅ *complete*<br>WAV files are streamed and decoded by a Web Worker.  Chunks are scheduled into a read buffer before sending to encoder to ensure decoder receives complete, decodable chunks.  JavaScript (not WebAssembly) is used for decoding.
-1. **Opus Streaming** &nbsp; 😶 *incomplete*<br>WebAssembly [`opus-stream-decoder`](https://github.com/AnthumChris/opus-stream-decoder) will be used to decode [Opus](http://opus-codec.org/) files.  This would simulate a real-world use case of streaming compressed audio over the web.  (MP3 is old and outdated for those of us who grew up with WinPlay3.  Opus is the new gold standard).  [`opus-stream-decoder`](https://github.com/AnthumChris/opus-stream-decoder) is now production-ready but has not yet been integrated into this repo.
+1. **Opus Streaming** [`opus-stream-decoder`](https://github.com/AnthumChris/opus-stream-decoder) is used to decode a [Opus](http://opus-codec.org/) in a Web Worker with WebAssembly.  This simulates a real-world use case of streaming compressed audio over the web with the Web Audio  API.  (MP3 is old and outdated for those of us who grew up with WinPlay3.  Opus is the new gold standard).  This example is ideal because it allows for small, high-quality files with Opus.
+1. **WAV Streaming**  A WAV file is streamed and decoded by a Web Worker.  Chunks are scheduled into a read buffer before sending to encoder to ensure decoder receives complete, decodable chunks.  JavaScript (not WebAssembly) is used for decoding. This example requires a much larger file.
 
 # Back-End Nginx Server
 
