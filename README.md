@@ -1,4 +1,4 @@
-<img clear="both" align="left" width="200px" src="https://raw.githubusercontent.com/AnthumChris/fetch-stream-audio/master/favicon.ico" /><br>
+<img clear="both" align="left" width="200px" src="https://raw.githubusercontent.com/AnthumChris/fetch-stream-audio/opus/src/favicon.ico" /><br>
 
 # Demo
 
