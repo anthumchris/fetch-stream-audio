@@ -53,6 +53,7 @@ export class AudioStreamPlayer {
 
   close() {
     for (let node of this._audioSrcNodes) {
+      node.onended = null;
       node.disconnect(this._audioCtx.destination);
       node.stop();
     }
