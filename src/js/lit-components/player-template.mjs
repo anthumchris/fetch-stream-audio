@@ -15,7 +15,7 @@ export default ({
   playState, mime, codec, waiting,
   bytesRead, bytesTotal, readBuffer, dlRate,
   abCreated, abEnded, abRemaining,
-  onClick, error, decoder
+  onClick, error, decoder, skips
 }) => html`
   <div class="player">
     <div class="header">
@@ -36,11 +36,14 @@ export default ({
     </div>
     <div class="error">${error? html`${error}` : null}</div>
     <dl>
-      <dt>Playback Waiting</dt>
-      <dd>${waiting
-            ? html`${decimal(waiting)} ms`
-            : null
-          }</dd>
+      <dt>AudioBuffer Created</dt>
+      <dd>${abCreated !== null? abCreated.toLocaleString() : null}</dd>
+
+      <dt>AudioBuffer Played</dt>
+      <dd>${abEnded !== null? abEnded.toLocaleString() : null}</dd>
+
+      <dt>AudioBuffer Unplayed</dt>
+      <dd>${abRemaining !== null ? abRemaining.toLocaleString() : null}</dd>
 
       <dt>Downloaded</dt>
       <dd>${bytesRead
@@ -55,14 +58,14 @@ export default ({
             : null
           }</dd>
 
-      <dt>AudioBuffer Created</dt>
-      <dd>${abCreated !== null? abCreated.toLocaleString() : null}</dd>
+      <dt>Playback Waiting</dt>
+      <dd>${waiting
+            ? html`${decimal(waiting)} ms`
+            : null
+          }</dd>
 
-      <dt>AudioBuffer Played</dt>
-      <dd>${abEnded !== null? abEnded.toLocaleString() : null}</dd>
-
-      <dt>AudioBuffer Unplayed</dt>
-      <dd>${abRemaining !== null ? abRemaining.toLocaleString() : null}</dd>
+      <dt>Playback Skips</dt>
+      <dd class="${skips > 0? 'error' : ''}">${skips !== null ? skips : null}</dd>
 
     </dl>
     <dl>

@@ -15,6 +15,7 @@ export class AudioStreamPlayer {
   _playStartedAt         // audioContext.currentTime of first sched
   _abCreated;            // AudioBuffers created
   _abEnded;              // AudioBuffers played/ended
+  _skips;                // audio skipping caused by slow download
 
   constructor(url, readBufferSize, decoderName) {
     switch (decoderName) {
@@ -49,6 +50,7 @@ export class AudioStreamPlayer {
     this._playStartedAt = 0;
     this._abCreated = 0;
     this._abEnded = 0;
+    this._skips = 0;
   }
 
   close() {
@@ -97,6 +99,7 @@ export class AudioStreamPlayer {
       abCreated: this._abCreated,
       abEnded: this._abEnded,
       abRemaining: this._abCreated - this._abEnded,
+      skips: this._skips
     };
     const state = Object.assign(abState, props);
     if (this.onUpdateState) {
@@ -184,10 +187,13 @@ export class AudioStreamPlayer {
 
     audioSrc.buffer = audioBuffer;
     audioSrc.connect(this._audioCtx.destination);
-    audioSrc.start(this._playStartedAt + this._totalTimeScheduled);
-    if (startDelay) {
-      this._updateState({ waiting: performance.now() - this._getDownloadStartTime() + startDelay*1000 });
+    
+    const startAt = this._playStartedAt + this._totalTimeScheduled;
+    if (this._audioCtx.currentTime >= startAt) {
+      this._skips++;
+      this._updateState();
     }
+    audioSrc.start(startAt);
 
     this._totalTimeScheduled+= audioBuffer.duration;
   }

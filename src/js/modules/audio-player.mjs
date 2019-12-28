@@ -67,7 +67,8 @@ export class AudioPlayer {
       abRemaining: null,
       error: null,
       readBuffer: null,
-      decoder: null
+      decoder: null,
+      skips: null,
     });
     this._onStateChange('reset');
   }

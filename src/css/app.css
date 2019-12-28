@@ -131,6 +131,10 @@ dd {
 dd.static {
   color: var(--whiteish);
 }
+dd.error {
+  color: #f00;
+  font-size: inherit;
+}
 
 button {
   font-size: 1em;
