@@ -5,7 +5,6 @@
     "dev": "./scripts/dev.sh",
     "build": "./scripts/build.sh",
     "clean": "rm -rf build dist",
-    "init": "git submodule update --init",
     "clean-all": "rm -rf .cache build dist node_modules package-lock.json"
   },
   "devDependencies": {
