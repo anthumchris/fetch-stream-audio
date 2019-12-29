@@ -1,22 +1,9 @@
-import wasm from './opus-stream-decoder/dist/opus-stream-decoder.cjs.js';
+import { OpusStreamDecoder } from 'opus-stream-decoder';
 import { DecodedAudioPlaybackBuffer } from './modules/decoded-audio-playback-buffer.mjs';
 
+const decoder = new OpusStreamDecoder({ onDecode });
 const playbackBuffer = new DecodedAudioPlaybackBuffer({ onFlush });
 let sessionId, flushTimeoutId;
-
-// Set temporary decoder.ready that will replaced with OpusStreamDecoder.ready
-// when WASM loads. Currently required for CJS module-based loading.
-let decoder = {
-  ready: new Promise(resolve => {
-    wasm({
-      onRuntimeInitialized() {
-        decoder = new this.OpusStreamDecoder({ onDecode });
-        console.log('WASM decoder ready');
-        resolve();
-      }
-    });
-  })
-};
 
 function evalSessionId(newSessionId) {
   // detect new session and reset decoder

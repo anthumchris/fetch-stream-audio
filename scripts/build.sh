@@ -5,7 +5,7 @@ set -e
 mkdir -p dist
 
 # Parcel doesn't copy .wasm.
-cp src/js/opus-stream-decoder/dist/opus-stream-decoder.cjs.wasm dist/
+cp node_modules/opus-stream-decoder/dist/opus-stream-decoder.wasm dist/
 
 cd dist
 ln -fs ../audio audio
