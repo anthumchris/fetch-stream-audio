@@ -56,6 +56,7 @@ https://fetch-stream-audio.anthum.com/512kbps/opus/decode-test-64kbit.opus
 | 80 kbps | https://fetch-stream-audio.anthum.com/80kbps/opus/decode-test-64kbit.opus |
 | 88 kbps | https://fetch-stream-audio.anthum.com/88kbps/opus/decode-test-64kbit.opus |
 | 96 kbps | https://fetch-stream-audio.anthum.com/96kbps/opus/decode-test-64kbit.opus |
+| 100 kbps | https://fetch-stream-audio.anthum.com/100kbps/opus/decode-test-64kbit.opus |
 | 104 kbps | https://fetch-stream-audio.anthum.com/104kbps/opus/decode-test-64kbit.opus |
 | 112 kbps | https://fetch-stream-audio.anthum.com/112kbps/opus/decode-test-64kbit.opus |
 | 120 kbps | https://fetch-stream-audio.anthum.com/120kbps/opus/decode-test-64kbit.opus |
