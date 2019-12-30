@@ -15,6 +15,20 @@ The examples demonstrate:
 1. **Opus Streaming** [`opus-stream-decoder`](https://github.com/AnthumChris/opus-stream-decoder) is used to decode a [Opus](http://opus-codec.org/) in a Web Worker with WebAssembly.  This simulates a real-world use case of streaming compressed audio over the web with the Web Audio  API.  (MP3 is old and outdated for those of us who grew up with WinPlay3.  Opus is the new gold standard).  This example is ideal because it allows for small, high-quality files with Opus.
 1. **WAV Streaming**  A WAV file is streamed and decoded by a Web Worker.  Chunks are scheduled into a read buffer before sending to encoder to ensure decoder receives complete, decodable chunks.  JavaScript (not WebAssembly) is used for decoding. This example requires a much larger file.
 
+# Opus Playback Tests
+
+Opus file playback can be tested at throttled download speeds and varkous encoding/bitrate qualities ([Issue #14](https://github.com/AnthumChris/fetch-stream-audio/issues/14) will add to UI):
+
+[opusBitrate = 96; throttle = nolimit](https://fetch-stream-audio.anthum.com/#opusBitrate=96;throttle=nolimit)<br>
+[opusBitrate = 96; throttle = 1mbps](https://fetch-stream-audio.anthum.com/#opusBitrate=96;throttle=1mbps)<br>
+[opusBitrate = 96; throttle = 104kbps](https://fetch-stream-audio.anthum.com/#opusBitrate=96;throttle=104kbps)<br>
+[opusBitrate = 96; throttle = 100kbps](https://fetch-stream-audio.anthum.com/#opusBitrate=96;throttle=100kbps)<br>
+[opusBitrate = 64; throttle = 72kbps](https://fetch-stream-audio.anthum.com/#opusBitrate=64;throttle=72kbps)<br>
+[opusBitrate = 60; throttle = 64kbps](https://fetch-stream-audio.anthum.com/#opusBitrate=60;throttle=64kbps)<br>
+[opusBitrate = 32; throttle = 40kbps](https://fetch-stream-audio.anthum.com/#opusBitrate=32;throttle=40kbps)<br>
+[opusBitrate = 28; throttle = 32kbps](https://fetch-stream-audio.anthum.com/#opusBitrate=28;throttle=32kbps)<br>
+[opusBitrate = 12; throttle = 16kbps](https://fetch-stream-audio.anthum.com/#opusBitrate=12;throttle=16kbps)
+
 # Back-End Nginx Server
 
 To use the config files, create symblink `fetch-stream-audio`, e.g.:
