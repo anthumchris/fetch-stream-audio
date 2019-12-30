@@ -1,10 +1,14 @@
+import params from './url-hash-params.mjs';
 import { AudioPlayer } from './audio-player.mjs';
+
+const throttleSpeed = params.throttle || '2mbps';
+const opusBitrate = params.opusBitrate || 96;
 
 const playerData = [
   {
     // url: 'https://fetch-stream-audio.local.com/72kbps/bubbles.opus',
     // url: 'https://fetch-stream-audio.local.com/2mbps/opus/panning-96kbit.opus',
-    url: 'https://fetch-stream-audio.anthum.com/2mbps/opus/panning-96kbit.opus',
+    url: `https://fetch-stream-audio.anthum.com/${throttleSpeed}/opus/panning-${opusBitrate}kbit.opus`,
     mime: 'audio/ogg',
     codec: 'Opus',
     decoder: 'WebAssembly',
@@ -14,7 +18,7 @@ const playerData = [
   },
   {
     // url: 'https://fetch-stream-audio.local.com/2mbps/house-41000hz-trim.wav',
-    url: 'https://fetch-stream-audio.anthum.com/2mbps/house-41000hz-trim.wav',
+    url: `https://fetch-stream-audio.anthum.com/${throttleSpeed}/house-41000hz-trim.wav`,
     mime: 'audio/wav',
     codec: 'PCM',
     decoder: 'JavaScript',
