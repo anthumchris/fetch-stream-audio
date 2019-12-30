@@ -176,7 +176,10 @@ export class AudioStreamPlayer {
       // const startDelay = audioCtx.baseLatency || (128 / audioCtx.sampleRate);
 
       /* this doesn't clip in Firefox (256 value), plays */
-      startDelay = this._audioCtx.baseLatency || (256 / this._audioCtx.sampleRate);
+      // startDelay = this._audioCtx.baseLatency || (256 / this._audioCtx.sampleRate);
+
+      // 100ms allows enough time for largest 60ms Opus frame to decode
+      startDelay = 100 / 1000;
 
       /* this could be useful for firefox but outputLatency is about 250ms in FF. too long */
       // const startDelay = audioCtx.outputLatency || audioCtx.baseLatency || (128 / audioCtx.sampleRate);
