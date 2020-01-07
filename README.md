@@ -12,7 +12,7 @@ This repo provides Web Audio API examples for programatically decoding audio in 
 
 The examples demonstrate:
 
-1. **Opus Streaming** [`opus-stream-decoder`](https://github.com/AnthumChris/opus-stream-decoder) is used to decode a [Opus](http://opus-codec.org/) in a Web Worker with WebAssembly.  This simulates a real-world use case of streaming compressed audio over the web with the Web Audio  API.  (MP3 is old and outdated for those of us who grew up with WinPlay3.  Opus is the new gold standard).  This example is ideal because it allows for small, high-quality files with Opus.
+1. **Opus Streaming** [`opus-stream-decoder`](https://github.com/AnthumChris/opus-stream-decoder) is used to decode an [Opus](http://opus-codec.org/) file in a Web Worker with WebAssembly.  This simulates a real-world use case of streaming compressed audio over the web with the Web Audio  API.  (MP3 is old and outdated for those of us who grew up with WinPlay3.  Opus is the new gold standard).  This example is ideal because it allows for small, high-quality files with Opus.
 1. **WAV Streaming**  A WAV file is streamed and decoded by a Web Worker.  Chunks are scheduled into a read buffer before sending to encoder to ensure decoder receives complete, decodable chunks.  JavaScript (not WebAssembly) is used for decoding. This example requires a much larger file.
 
 # Opus Playback Tests
