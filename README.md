@@ -17,7 +17,7 @@ The examples demonstrate:
 
 # Opus Playback Tests
 
-Opus file playback can be tested at throttled download speeds and varkous encoding/bitrate qualities ([Issue #14](https://github.com/AnthumChris/fetch-stream-audio/issues/14) will add to UI):
+Opus file playback can be tested at throttled download speeds and various encoding/bitrate qualities ([Issue #14](https://github.com/AnthumChris/fetch-stream-audio/issues/14) will add to UI):
 
 [opusBitrate = 96; throttle = nolimit](https://fetch-stream-audio.anthum.com/#opusBitrate=96;throttle=nolimit)<br>
 [opusBitrate = 96; throttle = 1mbps](https://fetch-stream-audio.anthum.com/#opusBitrate=96;throttle=1mbps)<br>
