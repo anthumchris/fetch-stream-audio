@@ -4,8 +4,9 @@ set -e
 
 mkdir -p dist
 
-# Parcel doesn't copy .wasm.
+# Parcel doesn't copy .wasm or images
 cp node_modules/opus-stream-decoder/dist/opus-stream-decoder.wasm dist/
+cp -r src/images dist
 
 cd dist
 ln -fs ../audio audio
