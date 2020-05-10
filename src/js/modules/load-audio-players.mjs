@@ -8,7 +8,7 @@ const playerData = [
   {
     // url: 'https://fetch-stream-audio.local.com/72kbps/bubbles.opus',
     // url: 'https://fetch-stream-audio.local.com/2mbps/opus/panning-96kbit.opus',
-    url: `https://fetch-stream-audio.anthum.com/${throttleSpeed}/opus/panning-${opusBitrate}kbit.opus`,
+    url: `https://fetch-stream-audio.anthum.com/${throttleSpeed}/opus/demo/${opusBitrate}kbit.opus`,
     mime: 'audio/ogg',
     codec: 'Opus',
     decoder: 'WebAssembly',
