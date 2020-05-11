@@ -25,6 +25,7 @@ Opus file playback can be tested at throttled download speeds and varkous encodi
 [opusBitrate = 96; throttle = 100kbps](https://fetch-stream-audio.anthum.com/#opusBitrate=96;throttle=100kbps)<br>
 [opusBitrate = 64; throttle = 72kbps](https://fetch-stream-audio.anthum.com/#opusBitrate=64;throttle=72kbps)<br>
 [opusBitrate = 60; throttle = 64kbps](https://fetch-stream-audio.anthum.com/#opusBitrate=60;throttle=64kbps)<br>
+[opusBitrate = 53; throttle = 56kbps](https://fetch-stream-audio.anthum.com/#opusBitrate=53;throttle=56kbps)<br>
 [opusBitrate = 32; throttle = 40kbps](https://fetch-stream-audio.anthum.com/#opusBitrate=32;throttle=40kbps)<br>
 [opusBitrate = 28; throttle = 32kbps](https://fetch-stream-audio.anthum.com/#opusBitrate=28;throttle=32kbps)<br>
 [opusBitrate = 12; throttle = 16kbps](https://fetch-stream-audio.anthum.com/#opusBitrate=12;throttle=16kbps)
@@ -65,6 +66,8 @@ https://fetch-stream-audio.anthum.com/512kbps/opus/decode-test-64kbit.opus
 | 16 kbps | https://fetch-stream-audio.anthum.com/16kbps/opus/decode-test-64kbit.opus |
 | 24 kbps | https://fetch-stream-audio.anthum.com/24kbps/opus/decode-test-64kbit.opus |
 | 32 kbps | https://fetch-stream-audio.anthum.com/32kbps/opus/decode-test-64kbit.opus |
+| 40 kbps | https://fetch-stream-audio.anthum.com/32kbps/opus/decode-test-40kbit.opus |
+| 56 kbps | https://fetch-stream-audio.anthum.com/32kbps/opus/decode-test-56kbit.opus |
 | 64 kbps | https://fetch-stream-audio.anthum.com/64kbps/opus/decode-test-64kbit.opus |
 | 72 kbps | https://fetch-stream-audio.anthum.com/72kbps/opus/decode-test-64kbit.opus |
 | 80 kbps | https://fetch-stream-audio.anthum.com/80kbps/opus/decode-test-64kbit.opus |
