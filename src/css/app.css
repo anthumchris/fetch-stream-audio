@@ -33,7 +33,6 @@ main {
   flex-direction: row;
   justify-content: center;
   margin: 0 auto;
-  flex: 1;
   padding: 1rem 0 0;
 }
 
@@ -91,7 +90,7 @@ footer {
   padding: 0;
 }
 footer a {
-  font-size: .8rem;
+  font-size: .85rem;
   padding: 2em 1em;
 }
 
