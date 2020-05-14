@@ -8,7 +8,7 @@ https://fetch-stream-audio.anthum.com/
 
 # Background
 
-This repo provides Web Audio API examples for programatically decoding audio in chunks with the new Fetch &amp; Streams APIs.  Traditionally, [`decodeAudioData()`](https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/decodeAudioData) is used for programmatic decoding but requires the complete file to be downloaded, and chunk-based decoding is not supported.  These Streams examples will show how to sidestep that limitation.  Media Source Extensions could also be used to play audio and that example may be integrated here one day.
+This repo provides low-latency web audio playback examples for programatically decoding audio in chunks with the Web Audio API and the new Fetch &amp; Streams APIs.  Traditionally, [`decodeAudioData()`](https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/decodeAudioData) is used for programmatic decoding but requires the complete file to be downloaded, and chunk-based decoding is not supported.  These Streams examples will show how to sidestep that limitation.  Media Source Extensions could also be used to play audio and that example may be integrated here one day.
 
 The examples demonstrate:
 
