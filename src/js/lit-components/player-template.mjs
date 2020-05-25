@@ -47,8 +47,7 @@ export default ({
 
       <dt>Downloaded</dt>
       <dd>${bytesRead
-            ? html`${Math.round(bytesRead/bytesTotal*100)}%
-                   ${bytesFormatted(bytesRead)}/${bytesFormatted(bytesTotal)} Kb`
+            ? html`${bytesFormatted(bytesRead)} Kb`
             : null
           }</dd>
 

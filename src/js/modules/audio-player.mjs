@@ -60,7 +60,6 @@ export class AudioPlayer {
       codec: this._codec,
       waiting: null,
       bytesRead: null,
-      bytesTotal: null,
       dlRate: null,
       abCreated: null,
       abEnded: null,
