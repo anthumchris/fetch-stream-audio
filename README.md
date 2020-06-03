@@ -100,6 +100,30 @@ https://fetch-stream-audio.anthum.com/512kbps/opus/decode-test-64kbit.opus
 
 </details>
 
+# Development & Building
+
+Please remember that this is a proof-of-concept demo intended to show developers alternative (and possibly better) ways to play web audio.  Currently, there's no formal package or release (see [#21](https://github.com/AnthumChris/fetch-stream-audio/issues/21)), so you'll need to improvise a little to get this working in your apps or websites.
+
+I prefer [Yarn](https://yarnpkg.com/getting-started), and you'll need Yarn or [NodeJS](https://nodejs.org/en/) installed to build the project. [`app.js`](https://github.com/AnthumChris/fetch-stream-audio/blob/master/src/js/app.js) is the entry point for starting with the code.
+
+```bash
+# clone repo and install dependencies
+$ git clone https://github.com/AnthumChris/fetch-stream-audio
+$ cd fetch-stream-audio
+$ yarn install
+```
+
+```bash
+# run the development server in "watch" mode to automatically re-build your changes
+$ yarn dev
+```
+
+```bash
+# build the project formally with minification
+$ yarn build
+```
+
+
 
 # Acknowledgements
 
