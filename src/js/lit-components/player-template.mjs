@@ -12,7 +12,7 @@ function decimal(val) {
 }
 
 export default ({ 
-  playState, mime, codec, waiting,
+  playState, mime, codec, latency,
   bytesRead, bytesTotal, readBuffer, dlRate,
   abCreated, abEnded, abRemaining,
   onClick, error, decoder, skips
@@ -58,9 +58,9 @@ export default ({
             : null
           }</dd>
 
-      <dt>Playback Waiting</dt>
-      <dd>${waiting
-            ? html`${decimal(waiting)} ms`
+      <dt>Playback Latency</dt>
+      <dd>${latency
+            ? html`${decimal(latency)} ms`
             : null
           }</dd>
 

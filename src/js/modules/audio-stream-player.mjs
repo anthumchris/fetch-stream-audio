@@ -185,7 +185,7 @@ export class AudioStreamPlayer {
       // const startDelay = audioCtx.outputLatency || audioCtx.baseLatency || (128 / audioCtx.sampleRate);
 
       this._playStartedAt = this._audioCtx.currentTime + startDelay;
-      this._updateState({ waiting: performance.now() - this._getDownloadStartTime() + startDelay*1000 });
+      this._updateState({ latency: performance.now() - this._getDownloadStartTime() + startDelay*1000 });
     }
 
     audioSrc.buffer = audioBuffer;

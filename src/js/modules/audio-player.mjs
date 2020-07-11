@@ -58,7 +58,7 @@ export class AudioPlayer {
       playState: 'init',
       mime: this._mime,
       codec: this._codec,
-      waiting: null,
+      latency: null,
       bytesRead: null,
       bytesTotal: null,
       dlRate: null,
