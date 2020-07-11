@@ -51,7 +51,7 @@ server {
 
 ## Throttled Bandwidth Endpoints
 
-All `/audio/*` URIs are configured to intentionally limit download speeds and control response packet sizes for testing the decoding behavior (defined in [server.conf](.conf/nginx/server.conf)).  For example:
+All `/audio/*` URIs are configured to intentionally limit download speeds and control response packet sizes for testing the decoding behavior (defined in [include-server.conf](.conf/nginx/include-server.conf)).  For example:
 
 https://fetch-stream-audio.anthum.com/nolimit/opus/decode-test-64kbit.opus<br>
 https://fetch-stream-audio.anthum.com/10mbps/opus/decode-test-64kbit.opus<br>
