@@ -36,6 +36,13 @@ export default ({
     </div>
     <div class="error">${error? html`${error}` : null}</div>
     <dl>
+      <dt>Playback Latency</dt>
+      <dd>${latency
+            ? html`${decimal(latency)} ms`
+            : null
+          }</dd>
+    </dl>
+    <dl>
       <dt>AudioBuffer Created</dt>
       <dd>${abCreated !== null? abCreated.toLocaleString() : null}</dd>
 
@@ -58,15 +65,8 @@ export default ({
             : null
           }</dd>
 
-      <dt>Playback Latency</dt>
-      <dd>${latency
-            ? html`${decimal(latency)} ms`
-            : null
-          }</dd>
-
       <dt>Playback Skips</dt>
       <dd class="${skips > 0? 'error' : ''}">${skips !== null ? skips : null}</dd>
-
     </dl>
     <dl>
       <dt>Decoder</dt>
