@@ -1,7 +1,7 @@
 import params from './url-hash-params.mjs';
 import { AudioPlayer } from './audio-player.mjs';
 
-const throttleSpeed = params.throttle || '2mbps';
+const throttleSpeed = params.throttle || '5mbps';
 const opusBitrate = params.opusBitrate || 96;
 
 const playerData = [
