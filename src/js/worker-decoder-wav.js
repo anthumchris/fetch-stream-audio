@@ -7,11 +7,7 @@ self.onmessage = event => {
     const decoded = decoder.decodeChunkSync(event.data.decode);
     self.postMessage(
       { decoded, sessionId },
-      [
-        decoded.channelData[0].buffer,
-        decoded.channelData[1].buffer
-      ]
+      decoded.channelData.map(({ buffer }) => buffer)
     );
   }
 };
-
