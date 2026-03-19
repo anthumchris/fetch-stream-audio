@@ -123,7 +123,9 @@ $ yarn dev
 $ yarn build
 ```
 
+# Related Projects & Forks
 
+1. [@puresignal/fetch-stream-audio](https://www.npmjs.com/package/@puresignal/fetch-stream-audio) (https://github.com/anthumchris/fetch-stream-audio/issues/21) - NPM package
 
 # Acknowledgements
 
